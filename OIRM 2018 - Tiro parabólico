@@ -1,0 +1,224 @@
+double globalX = 0;
+double globalY = 0;
+int state = 0;
+double[] vector = new double[2]; 
+double modulov; 
+double longvector;
+double ang;
+double tiempoaltmax;
+double alturamax;
+double tiempocaida;
+double alcance;
+double timer;
+double vx;
+double vy;
+double puntost [][] = new double[100000][4];
+int puntos = 0;
+int cd = 0;
+double velocidad = 10;
+double maxvelocidad = 300;
+double VY = 0;
+boolean done = false;
+
+
+
+void reset ()
+  {
+  	velocidad = 10;
+  	VY = 0 ;
+  	cd = millis();
+  	state = 0;
+  	globalX = 0;
+		globalY = 0;
+  	puntost = new double[100000][4];
+  	puntos = 0;
+  	state = 0;
+  	done = false;
+   
+	}
+
+double rad(double ang)
+{
+  double radian = (3.14159265359*ang)/180;
+  return radian;
+}
+void calculos()
+  {
+  	vector[0] = mouseX-30;
+    vector[1]= mouseY-280;
+    modulov = sqrt(pow(vector[0],2)+pow(vector[1],2));
+    longvector = 30;
+    for(int i = 0; i<2; i++)
+          {
+          vector[i] = longvector*(vector[i]/modulov);
+          }
+    if(vector[0] < 0)
+      {
+       vector[0] = 0;
+       vector[1] = -longvector;
+      }
+    if(vector[1] > 0)
+      {
+      vector[0] = longvector;
+      vector[1] = 0;
+      }
+    ang = (180*atan(-vector[1]/vector[0]))/3.14159265359;
+
+	}
+void dibujar()
+{	
+
+   background(134,230,249,0.93); //Empezamos a dibujar el fondo y los objetos
+   
+  	if(state==0)
+    {	    
+      
+  		calculos();
+			if(mousePressed && mouseButton==LEFTBUTTON && millis()-cd>300 && mouseX<270 ) 
+        {
+          vx = cos(rad(ang))*velocidad;
+          vy = sin(rad(ang))*velocidad;
+
+          tiempoaltmax = vy/9.8;
+          alturamax = 40 + vy*tiempoaltmax - 4.9*(tiempoaltmax*tiempoaltmax);
+
+          double a = 4.9 ;
+          double b = -vy ;  
+          double c =  -40 ;  
+
+          tiempocaida =   (-b + sqrt(b*b-4*a*c))/(2*a);
+
+
+          alcance = vx*tiempocaida;
+         	timer = millis();
+        	timer = timer/1000;
+        	state = 1;
+      	}
+    
+  	}
+  
+ if(state==1)
+  {	
+    double time = millis();	
+	  globalX = -vx*(time/1000-timer);
+    globalY = vy*(time/1000-timer)-4.9*pow((time/1000-timer),2);
+   	puntost [puntos][0] = vector[0] + 30 ;
+   	puntost [puntos][1] = vector[1] + 280 ;
+   	puntost[puntos][2] = globalX;
+  	puntost[puntos][3] = globalY;
+   	puntos++;
+   
+    
+   if(320+globalY<vector[1] + 280)
+     {
+     	state=2;
+   	 }
+  }
+  
+	double gx = globalX%320;
+  image("https://image.ibb.co/e5wdKH/scene.png", gx,globalY+70,320,320);
+  image("https://image.ibb.co/e5wdKH/scene.png", gx + 320,globalY+70,320,320);
+  stroke(1);
+  line(30 + globalX, 320 + globalY, 30 + globalX, 280 + globalY );  //mastil vertical
+  stroke(1);
+  fill(6,6,6,0.97);
+  line(30 + globalX,280+ globalY,vector[0]+ 30 + globalX,vector[1] + 280 + globalY); //mastil cañón
+  noStroke();
+  fill(251,0,0);
+  stroke(1);
+  ellipse(30 + globalX,280 + globalY,30,30); //cañón
+  fill(0,0,0);
+  if(state==0)text(round(ang)+"º", 22,284);
+  if(state==1)
+    {
+    		text("x: "+round(-globalX)+ " m",20,20);
+   		  text("y: "+round(globalY - vector[1] + 40)+" m",20,50);
+  	}
+  noStroke();
+  fill(124,90,7); 
+  fill(217,137,11);
+  stroke(1);
+  ellipse(vector[0] + 30 + globalX,vector[1] + 280 + globalY,5,5); //proyectil del cañón
+  ellipse(vector[0] + 30 ,vector[1] + 280 ,5,5);
+  fill(0,0,0);
+  for(int i = 0;i<puntos;i++)
+    {
+  		point(puntost[i][0],puntost[i][1]);
+    	puntost[i][0] = puntost [i][0] - (puntost[i][2]-globalX);
+    	puntost[i][1] = puntost [i][1] - (puntost[i][3]-globalY);
+ 		  puntost[i][2] = globalX;
+    	puntost[i][3] = globalY;
+    
+    	
+    	
+  	}
+   if(state==2)
+    {	
+     	image("https://image.ibb.co/eJmZtc/End_Game_Table.png",40,80,240,240);
+     	fill(0,0,0);
+     	textSize(10);
+     	int ty = 140;
+     	int tx = 35;
+      text("Alcance: " + round(alcance) +" metros.",30 + tx,60 + ty);	
+      text("Altura máxima: " + round(alturamax) +" metros.",30 +tx,40 +ty);	
+      text("Tiempo de caída: " + round(tiempocaida) +" segundos.",30 +tx,20+ty);	
+     	image("https://image.ibb.co/gvRneH/Options_Buttons.jpg",285,5,30,30);
+     	 if(mousePressed && mouseX>285 && mouseX < 285+30 && mouseY>5 && mouseY < 5+30)
+     {
+     		reset();
+   	 }
+    }
+  
+  if(state==0)
+    {
+			image("https://image.ibb.co/i5LajH/tiroparabolico.png", 10,10,200,200);    
+    	if(mouseX>300 && mouseX<320 && mouseY>10 && mouseY<230 && mousePressed)
+        {
+        		VY = mouseY - 20;
+        		if(VY<0)VY=0;
+        		if(VY>200)VY=200;
+        		velocidad = (maxvelocidad*VY)/200;
+        		if(velocidad<10)
+              velocidad = 10 ;
+        		
+      	}
+ 			   
+    	if(mouseX>270 && mouseX<320 && mouseY>0 && mouseY<20 && mousePressed && !done && millis()-cd>300)
+        {
+        	done = true;
+      	  for(int i = 0; i<500000; i++){}
+          velocidad = readDouble("Dime la velocidad inicial. Entre 10 y 300 m/s.");
+          while(velocidad<10 || velocidad>300)
+            {
+            	
+           velocidad = readDouble("Dime la velocidad inicial. Entre 10 y 300 m/s.");
+           done = false;
+          	}
+          VY = (velocidad*200)/maxvelocidad;
+        	
+      	}
+			textSize(10); 
+    	double x = 6.3;
+    	double a = velocidad;
+    	int b = 0;
+    	while(a>=10)
+        {
+        	a = a/10;
+        	b++;
+            
+      	}
+    	text(round(velocidad) +  " m/s", 260 + 25 - x*b ,17);
+    	rect(310,20,2,200);
+    	rect(308,20+VY,6,2);
+  	}
+  
+}
+
+
+
+
+void main()
+{
+  
+  animate (dibujar);
+}
