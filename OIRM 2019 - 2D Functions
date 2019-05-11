@@ -1,1 +1,2046 @@
 
+//posiciones respecto ejes iJava   
+double xi;     
+double yi; 
+ 
+
+//intro programa
+boolean intro_hecha = false;
+int duracion_intro=2000;
+int a_tiempo;
+
+
+
+//fases programas
+boolean[] fase = new boolean[4];
+fase[0] = true; //estándar
+fase[1] = false; // una vez el diagrama de funciones desplegado
+fase[2] = false; //una vez la función seleccionada
+fase[3] = false; //información función
+
+
+
+// tipos funciones son seleccionadas
+boolean[] tipo_funcion = new boolean[11];
+for(int i =0;i<=1;i++){
+  tipo_funcion[i] = false;
+}
+
+
+
+//muestra función
+boolean[] muestrafuncion = new boolean[11];
+muestrafuncion[0] = false; //Constante
+muestrafuncion[1] = false; //Afin
+muestrafuncion[2] = false; //Cuadrática
+muestrafuncion[3] = false; //Racional
+muestrafuncion[4] = false; //Polinomica
+muestrafuncion[5] = false; //Exponencial
+muestrafuncion[6] = false; //Logarítmica
+muestrafuncion[7] = false; //Racional (oblicua)
+muestrafuncion[8] = false; //Seno
+muestrafuncion[9] = false; //Coseno
+muestrafuncion[10] = false; //Tangente
+
+
+
+//carácteres de funciones para el diagrama
+String[] indice_funciones = new String [11];
+indice_funciones[0]="Constante";
+indice_funciones[1]="Afin";
+indice_funciones[2]="Cuadratica";
+indice_funciones[3]="Racional";
+indice_funciones[4]="Radical";
+indice_funciones[5]="Exponencial";
+indice_funciones[6]="Logarítmica";
+indice_funciones[7]="Racional (asín. oblicua)";
+indice_funciones[8]="Seno";
+indice_funciones[9]="Coseno";
+indice_funciones[10]="Tangente";
+
+
+
+//desplazamiento
+boolean poder_desplazamiento=true;
+double [] centropos = new double[2]; //posiciones eje coordenadas al inicio
+centropos[0] = 159.5;
+centropos[1] = 159.5;
+double despxi; //posicion momento empezar desplazamiento
+double despyi;
+double[] lastcentro = new double[2]; //posicion eje coordenadas en cualquier momento
+boolean primerclick = true; //click para empezar el desplazamiento
+
+
+
+//desplazamiento y zoom por el programa
+boolean mas = false; //se hace zoom +
+boolean menos = false; //zoom -
+
+
+
+//zoom
+double zoom = 10;	//zoom programa
+double extremoszoom[] = new int[2]; //límites zoom
+extremoszoom[0] = 3;
+extremoszoom[1] =25;
+int num;
+double minx;	//límite dibujo por la izquierda para optimización
+double maxx;	//límite dibujo por la derecha para optimización
+
+
+
+//ajustes
+boolean ajustes = false;
+int FPS_boton_X = 310;  //centro elipse que se desplaza al mover el cursor
+boolean mostrar_fps_boton=true;
+double coeficiente_puntos=1;	//frecuecnia dibujado
+boolean tasa_alta=false;	
+
+
+
+//RGB
+boolean color = false;	//diagráma RBG
+int cooldown;
+int [][] color_funcion = new int[13][3];	//valor R,G,B
+int [][] lin_color = new int[13][3];		//posición de la línea del diagrama del color
+for(int z =0; z<=2; z++){		//fijamos todas las posiciones iniciales de las líneas en 40
+  for(int i=0; i<=10;i++){
+    lin_color[i][z]=40;
+  }
+}
+color_funcion[11][0] = 111;  //establecemos color predeterminado del fondo para luego cambiarse si el usuario lo desea
+color_funcion[11][1] = 177;  
+color_funcion[11][2] = 243;  
+color_funcion[12][0] = 102;  //establecemos color predeterminado de los ejes para luego cambiarse si el usuario lo desea
+color_funcion[12][1] = 103;  
+color_funcion[12][2] = 104;
+
+
+
+//fps
+double f = 0;
+double fps = 0;
+double milli = 0; //para poder mediante regla de tres obtener los fps
+
+
+
+//función constante
+double a_constante = 5;
+double a_integral_constante;
+double b_integral_constante=5;
+double integral_definida_constante;
+
+//funcion afin
+double a_afin = 3;
+double x_afin = 2;
+double espacio_opera_afin;
+double a_integral_afin;
+double b_integral_afin=5;
+double integral_definida_afin;
+
+
+//función cuadrática
+double a_cuadratica = 1;
+double b_cuadratica = 2;
+double c_cuadratica = -10;
+double espacio_opera_cuadratica1;
+double espacio_opera_cuadratica2;
+double x_vertice_cuadratica;
+double y_vertice_cuadratica;
+double x_derivada_cuadratica;
+double y_derivada_cuadratica;
+double a_integral_cuadratica;
+double b_integral_cuadratica=5;
+double integral_definida_cuadratica;
+
+//funcion racional
+double a_racional = 1;
+double x1_racional = 2;
+double espacio_opera_racional1;
+double x2_racional = 1;
+double b_racional = 5;
+double espacio_opera_racional2;
+double x_asintota_vertical_oblicua;
+double x_derivada_racional;
+double y_derivada_racional;
+
+//funcion radical
+double x_radical=2;
+double a_radical=3;
+double espacio_opera_radical;
+double x_extremo_radical;
+double y_extremo_radical;
+double x_derivada_radical;
+double y_derivada_radical;
+double a_integral_radical;
+double b_integral_radical=5;
+double integral_definida_radical;
+
+//funcion exponencial
+double x_exponencial=2;
+double a_exponencial=5;
+double espacio_opera_exponencial;
+double x_extremo_exponencial;
+double y_extremo_exponencial;
+double x_derivada_exponencial;
+double y_derivada_exponencial;
+double a_integral_exponencial;
+double b_integral_exponencial=5;
+double integral_definida_exponencial;
+
+//funcion logarítmica
+double x_logaritmica=1;
+double a_logaritmica=5;
+double espacio_opera_logaritmica;
+double x_extremo_logaritmica;
+double y_extremo_logaritmica;
+double x_derivada_logaritmica;
+double y_derivada_logaritmica;
+double a_integral_logaritmica = 1;
+double b_integral_logaritmica=5;
+double integral_definida_logaritmica;
+
+//funcion racional oblicua
+double a_racional_o = 5;
+double x1_racional_o = 1;
+double espacio_opera_racional_o1;
+double x2_racional_o=1;
+double m_asintota_oblicua;
+double n_asintota_oblicua;
+double x_derivada_racional_o;
+double y_derivada_racional_o;
+//double derivada_racional_o;
+//double punto_inflexion_racional_o;
+
+//funcion seno
+double a_seno = 3;
+double x_seno = 2;
+double espacio_opera_seno;
+double y_extremo_seno;
+double x_derivada_seno;
+double y_derivada_seno;
+double a_integral_seno;
+double b_integral_seno=5;
+double integral_definida_seno;
+
+//funcion coseno
+double a_coseno = 0;
+double x_coseno = 1;
+double espacio_opera_coseno;
+double y_extremo_coseno;
+double x_derivada_coseno;
+double y_derivada_coseno;
+double a_integral_coseno;
+double b_integral_coseno=5;
+double integral_definida_coseno;
+
+//funcion tangente
+double a_tangente = 1;
+double x_tangente = 1;
+double espacio_opera_tangente;
+double x_derivada_tangente;
+double y_derivada_tangente;
+double a_integral_tangente;
+double b_integral_tangente=5;
+double integral_definida_tangente;
+
+
+
+
+//dibujamos los ejes de coordenadas
+void dibujarejes(){
+  stroke(color_funcion[12][0],color_funcion[12][1],color_funcion[12][2]);
+  fill(0,0,0);
+  strokeWeight(2);
+  line(0,centropos[1],319,centropos[1]);
+  line(centropos[0],0,centropos[0],319);
+}
+
+
+
+//desplazamiento a lo largo del programa
+void desplazamiento(){
+  if(mousePressed && poder_desplazamiento){
+    if(primerclick){
+      despxi = mouseX;
+      despyi =mouseY;
+      lastcentro[0] = centropos[0];
+      lastcentro[1] = centropos[1];
+      primerclick = false;
+    }
+   else{
+     centropos[0] = lastcentro[0] + mouseX - despxi;
+     centropos[1] = lastcentro[1] + mouseY - despyi;
+   } 
+  }  
+  else{
+    primerclick = true;
+  }  
+}
+
+
+
+//dibujamos las líneas y los números de los ejes
+void lineas(){
+ 	strokeWeight(1);
+  fill(color_funcion[12][0],color_funcion[12][1],color_funcion[12][2]);
+  stroke(color_funcion[12][0],color_funcion[12][1],color_funcion[12][2]);
+  textSize(round(zoom*0.6));
+  num=0;
+	for(double i = centropos[0]+zoom;i<320;i=i+zoom ){ //eje x arriba
+    line(i,centropos[1]-zoom*0.5, i,centropos[1]+zoom*0.5);
+   	num++;
+    if(num%5==0)text(num,i-0.5*textWidth(num),centropos[1]+zoom*1.2);
+  }	
+  num=0;
+  for(double i = centropos[0]-zoom;i>0;i=i-zoom ){	//eje x abajo
+    line(i, centropos[1]-zoom*0.5, i, centropos[1]+zoom*0.6);
+    num--;
+    if(num%5==0)text(num,i-0.7*textWidth(num),centropos[1]-zoom*0.7);
+  }	 
+  num=0;
+  for(double i = centropos[1]+zoom;i<320;i=i+zoom ){ //eje y abajo
+    line(centropos[0]-zoom*0.5, i, centropos[0]+zoom*0.5, i);
+    num--;
+    if(num%5==0)text(num,centropos[0]-zoom*0.5-textWidth(num), i+zoom*0.3);
+  }	
+  num=0;
+  for(double i = centropos[1]-zoom;i>0;i=i-zoom ){	//eje y arriba
+    line(centropos[0]-zoom*0.5, i, centropos[0]+zoom*0.5, i+0.3);
+    num++;
+    if(num%5==0)text(num,centropos[0]+zoom*1.2-0.5*textWidth(num),i+zoom*0.3);
+  }	
+}
+
+
+
+//DIBUJAR EJES, LINEAS Y PROPORCIONAR DESPLAZAMIENTO
+void interfaz_ejes(){
+  dibujarejes();
+  lineas();
+  desplazamiento();
+}
+
+
+
+//función que determina los FPS del programa
+void FPS(){
+  if(mostrar_fps_boton){	//cálculo fotogramas por segundo del programa
+    f++;
+    fill(0,0,0);
+    textSize(8);
+    text("FPS: "+fps,210,310);
+    if(millis()-milli >= 1000){
+      fps = f;
+      f = 0;
+      milli = millis();
+    }
+  }
+}
+
+
+
+//menú de ajustes
+void ajustes_f(){
+  	//ajustes
+    if(ajustes){
+      if(((mouseX < 267  && mouseY < 97) || (mouseY>97)) &&  mousePressed==true){
+        ajustes=false;
+      }
+      strokeWeight(1);
+      stroke(0,0,0);
+      fill(0,0,0);
+      textSize(10);
+      text("VER FPS",220,45);
+      ellipse(290,40,15,15);	//diagrama fijo botón
+      ellipse(310,40,15,15);	
+      rect(290,32,20,15);
+      fill(255,255,255);
+      ellipse(FPS_boton_X,40,12,12);	//diagrama movible botón
+      if(mouseX > 282.5 && mouseX < 317.5 && mouseY > 34  && mouseY < 50 && mousePressed){
+        mostrar_fps_boton = !mostrar_fps_boton;
+        mousePressed=false;
+      }
+        if(mostrar_fps_boton){
+          FPS_boton_X=310;	//cambiamos posición del botón al hacer click
+          fill(233,90,4);	//dibujamos "ON" en el botón
+          textSize(4);
+          text("ON",FPS_boton_X-4, 40+2);
+        }
+        else{
+          FPS_boton_X=290;
+          fill(233,90,4);	//dibujamos "OFF" en el botón
+          textSize(4);
+          text("OFF",FPS_boton_X-5, 40+2);
+        }  
+
+      strokeWeight(1);
+      stroke(0,0,0);
+      fill(0,0,0);
+      textSize(10);
+      text("Tasa dibujo",210,63);
+      ellipse(290,60,15,15);	//diagrama fijo botón
+      ellipse(310,60,15,15);	
+      rect(290,52,20,15);
+      fill(255,255,255);
+      
+      if(mouseX > 282.5 && mouseX < 317.5 && mouseY > 53  && mouseY < 68 && mousePressed){
+        tasa_alta = !tasa_alta;
+        mousePressed=false;
+      }
+      if(tasa_alta){
+        coeficiente_puntos=0.3;	//cambiamos posición del botón al hacer click
+        fill(255,255,255);	//dibujamos "ON" en el botón
+        textSize(8);
+        text("Alta",288 , 63);
+      }
+      else{
+        coeficiente_puntos=1;
+        fill(255,255,255);	//dibujamos "OFF" en el botón
+        textSize(8);
+        text("Baja",288, 63);
+      }  
+           
+      strokeWeight(1);
+      stroke(0,0,0);
+      fill(0,0,0);
+      textSize(10);
+      text("Color fondo",210,83);
+      ellipse(290,80,15,15);	//diagrama fijo botón
+      ellipse(310,80,15,15);	
+      rect(290,72,20,15);
+      fill(255,255,255);
+      textSize(6);
+      text("Cambiar",285 , 83); //escribimos cambiar en el botón
+
+      if(mouseX > 282.5 && mouseX < 317.5 && mouseY > 73  && mouseY < 88 && mousePressed){
+        color_funcion[11][0] = round(random(255));  //si pulsas el botón, el color del fondo cambia a un color aleatorio
+        color_funcion[11][1] = round(random(255));   
+        color_funcion[11][2] = round(random(255)); 
+        mousePressed=false;
+      }
+    }
+}  
+
+
+
+//desplegar diagrámas de colores y cambiar valores
+void cambiar_color_funcion(int indice_funcion){
+  if(((mouseX > 105  && mouseY > 290) || (mouseY<290)) &&  mousePressed==true){
+    color=false;
+  }
+  //color botón
+  if(mouseX>5 && mouseX<25 && mouseY>295 && mouseY<315 && mousePressed && mouseButton == LEFTBUTTON && (millis()-cooldown)>200) {color=!color; cooldown=millis();}
+  if(color==true){ 
+    poder_desplazamiento=false;
+ 			
+    //red
+    if(mouseX>lin_color[indice_funcion][0]-30 && mouseX<lin_color[indice_funcion][0]+30 && mouseY>295 && mouseY<301 && mousePressed && mouseButton==LEFTBUTTON ){
+      lin_color[indice_funcion][0] = mouseX;
+      if(lin_color[indice_funcion][0]<40) lin_color[indice_funcion][0]=40;
+      if(lin_color[indice_funcion][0]>90) lin_color[indice_funcion][0]=90;
+      color_funcion[indice_funcion][0] = round((lin_color[indice_funcion][0]-40)*5.1); 
+    }
+    //green
+    if(mouseX>lin_color[indice_funcion][1]-30 && mouseX<lin_color[indice_funcion][1]+30 && mouseY>302 && mouseY<308 && mousePressed && mouseButton==LEFTBUTTON){
+      lin_color[indice_funcion][1] = mouseX;
+      if(lin_color[indice_funcion][1]<40)  lin_color[indice_funcion][1]=40;
+      if(lin_color[indice_funcion][1]>90) lin_color[indice_funcion][1]=90;
+      color_funcion[indice_funcion][1] = round((lin_color[indice_funcion][1]-40)*5.1); 
+    } 
+    //blue
+    if(mouseX>lin_color[indice_funcion][2]-30 && mouseX<lin_color[indice_funcion][2]+30 && mouseY>309 && mouseY<315 && mousePressed && (millis()-cooldown)>200 && mouseButton==LEFTBUTTON){
+      lin_color[indice_funcion][2] = mouseX;
+      if(lin_color[indice_funcion][2]<40) lin_color[indice_funcion][2]=40;
+      if(lin_color[indice_funcion][2]>90) lin_color[indice_funcion][2]=90;
+      color_funcion[indice_funcion][2] = round((lin_color[indice_funcion][2]-40)*5.1); 
+    }    
+    textSize(5);
+    stroke(0,0,0);
+    text("R", 30,300);
+    text("G", 30,307);
+    text("B", 30,314);
+    line(40, 298, 90,298);
+    line(40, 305, 90,305);
+    line(40, 312, 90,312);
+    line(lin_color[indice_funcion][0], 296, lin_color[indice_funcion][0], 300);
+    line(lin_color[indice_funcion][1], 303, lin_color[indice_funcion][1], 307);
+    line(lin_color[indice_funcion][2], 310, lin_color[indice_funcion][2], 314);  
+  }
+  else poder_desplazamiento=true;
+    
+}
+
+
+
+//reiniciar el programa con su configuración de inicio
+void reiniciar_programa(){
+  borrar(); //borramos funciones
+  parametros_iniciales();	//restlecmos por parámetros inicales de las funciones
+  centrar();	//centramos programa
+  mostrar_fps_boton=true;
+  tasa_alta=false;	//establecemos tasa dibujado a bajo
+  for(int z =0; z<=2; z++){		//fijamos todas las posiciones iniciales de las líneas en 40
+    for(int i=0; i<=12;i++){
+      lin_color[i][z]=40;
+    }
+  }
+  color_funcion[11][0] = 111;  //establecemos color inicial del fondo
+  color_funcion[11][1] = 177;  
+  color_funcion[11][2] = 243;  
+  color_funcion[12][0] = 0;  //establecemos color inicial de los ejes
+  color_funcion[12][1] = 0;  
+  color_funcion[12][2] = 0; 
+  
+  
+}
+
+
+
+//parámetros por defecto de las funciones
+void parametros_iniciales(){
+  a_constante = 5;
+  a_afin = 3;
+  x_afin = 2;
+  a_cuadratica = 1;
+  b_cuadratica = 2;
+  c_cuadratica = -10;
+  a_racional = 1;
+  x1_racional = 2;
+  x2_racional = 1;
+  b_racional = 5;
+  x_radical=2;
+  a_radical=3;
+  x_exponencial=2;
+  a_exponencial=5;
+  x_logaritmica=1;
+  a_logaritmica=5;
+  a_racional_o = 5;
+  x1_racional_o = 1;
+  x2_racional_o=1;
+  a_seno = 3;
+  x_seno = 2;
+  a_coseno = 0;
+  x_coseno = 1;
+  a_tangente = 1;
+  x_tangente = 1;
+}
+
+
+
+//borrar funciones en pantalla
+void borrar(){
+  for(int i=0; i<=10;i++){
+    muestrafuncion[i]=false;
+  } 
+}
+
+
+
+//centrar programa
+void centrar(){
+  centropos[0]=159.5;
+  centropos[1]=159.5;
+}
+
+
+
+//escribe tipo de funciones en el diagrama
+void nombres_funciones(int indice, int x){
+  fill(0,0,0);
+  int y=40;
+  for(int i=indice; i<=indice+3;i++){
+    if(i==11) break;
+    text(indice_funciones[i],x,y);
+    text(indice_funciones[i],x,y);
+    y=y+20;
+  }    
+}
+
+
+
+//consecuencia del click en un tipo de función
+void click_tipo_funcion(int indice_funcion){
+  fase[0]=false;
+  fase[1]=false;
+  fase[2]=true;
+  tipo_funcion[indice_funcion]=true;
+  muestrafuncion[indice_funcion]=true;
+  mousePressed=false;
+}
+
+
+
+//consecuencia botón listo función
+void click_listo_funcion(int indice_funcion){
+  tipo_funcion[indice_funcion] = false;
+  fase[0]=true;
+  fase[1]=false;
+  fase[2]=false;
+  color=false;
+}
+
+
+
+//consecuencia botón borrar función
+void click_borrar_funcion(int indice_funcion){
+  tipo_funcion[indice_funcion] = false;
+  muestrafuncion[indice_funcion] = false;
+  fase[0] = true;
+  fase[1]=false;
+  fase[2]=false;
+  color=false;
+}
+
+
+
+//cerrar pestaña configuración función si haces click fuera de ella
+void click_fuera_configuracion_funcion(int indice_funcion){	//descartamos la zona del diagrama de color	
+  if(((mouseY>102 || (mouseY<102 && mouseX>160)) && mousePressed==true && ((mouseX > 105  && mouseY > 290) || (mouseY<290)))  ){
+    fase[0]=true;
+    fase[2]=false;
+    tipo_funcion[indice_funcion]=false;
+  }
+}
+
+
+
+//texto en consola
+void texto_descripcion_programa(){
+  println("````2D Functions````");
+  println("");
+  println("");
+  println("Si te gusta, déjame un voto por favor.");
+  println("");
+  println("");
+  println("Este es un programa dedicado a la representación de funciones y al cáculo de algunas de sus características como su derivada y su integral definida. Así pudiendo elegir las que quieras entre un variado despliegue.");
+  println("");
+  println("También serás capaz de modificar sus parámetros para así ver como varía el comportamiento de las funciones.");
+  println("");
+  println("Todo esto, siendo capaz además de cambiar sus colores, también los de los ejes, y los del fondo incluso. ");
+  println("");
+  println("Además podrás desplazarte por el programa y hacer zoom, para que puedas ver como se comportan las funciones en valores extremos, como en el caso de las rectas asíntotas.");
+  println("");
+  println("También está disponible la opción desactivar la visualización de los fotogramas por segundo del programa, así como de subir su tasa de dibujo, para ver las representaciones con un dibujado más completo (esto relentiza el programa).");
+  println("");
+  println("");
+  println("Desplazamineto por el programa--> click + arrastrar el ratón");
+  println("");
+  println("Cambiar colores ejes--> pulsar diagrama de color fuera de la configuración de una función.");
+ 	println("");
+  println("Insertar función--> click en el icono de la esquina superior izquierda + elegir función.");
+ 	println("");
+  println("Borrar función--> click en el icono de la cruz dentro de la configuración de una función");
+ 	println("");
+  println("Cambiar color función--> click en el diagrama de color dentro de la configuración de la función deseada");
+ 	println("");
+  println("Visualizar información función--> dentro de la configuración de la función selccionada hacer click en el icono i (esquina superior izquierda).");
+  println("");
+  println("Cambiar cálculo derivada en un punto--> dentro de la información de la función selccionada hacer click en el número que acomapaña a la x."); 
+ 	println("");
+  println("Borrar todas las funciones en pantalla--> click en el icono de la papelera");
+  println("");
+  println("Reiniciar configuración programa--> click en el icono de la flecha curva.");
+  println("");
+  println("Desactivar visualización FPS--> click en opciones (icono ruleta) + click en botón FPS.");
+ 	println("");
+  println("Cambiar tasa dibujado--> click en opciones (icono ruleta) + click en tasa dibujado.");
+  println("");
+  println("Cambiar color fondo--> click en opciones (icono ruleta) + click en botón fondo.");
+  println("");
+  println("");
+  println("Para cualquier tipo de consulta o sugerencia contactar con '@albertogg023@gmail.com'");
+	println("");
+  println("¿Quieres saber más de mí? Te dejo mi página web.");
+	println("https://albertogg023.github.io/");
+}
+
+
+
+
+
+//interfaz inicial del programa
+void interfaz_inicial(){  
+  image("https://www.sessions.edu/wp-content/themes/divi-child/color-calculator/wheel-5-ryb.png",5,295, 20, 20 ); //color
+  image("https://www.shareicon.net/data/128x128/2015/12/01/680820_button_512x512.png",275,295, 20, 20 ); //+zoom
+  image("https://www.shareicon.net/data/128x128/2015/12/01/680511_zoom_512x512.png",298,295, 20, 20 ); //-zoom
+	image("https://cdn.onlinewebfonts.com/svg/img_509353.png",252,295, 20, 20 ); //centrar
+  image("https://cdn3.iconfinder.com/data/icons/line/36/add-512.png",3, 5,20,20); //icono diagrama funciones 
+  image("https://i.ibb.co/FHj3fvB/18297.png", 301,30,14,14); //icono borrar funciones
+	image("https://i.ibb.co/gmphMwb/61422.png", 300,7,15,15); //imagen ajustes
+  image("https://i.ibb.co/WcHJNjn/restart.png",301,52,14,14);	//imagen reiniciar programa
+}
+
+//imágenes función a seleccionar entre diagrama
+void interfaz_funcion_seleccionar(){
+	image("https://www.shareicon.net/data/128x128/2016/11/14/852481_info_512x512.png", 3,5,20,22);//botón información
+	image("https://cdn0.iconfinder.com/data/icons/free-daily-icon-set/512/Tick-512.png",30,3,23,23);//botón listo
+	image("https://preview.ibb.co/crW5Yo/img_127536.png", 62,5,18,18); //icono cancelar
+  image("https://www.sessions.edu/wp-content/themes/divi-child/color-calculator/wheel-5-ryb.png",5,295, 20, 20 ); //color
+  image("https://www.shareicon.net/data/128x128/2015/12/01/680820_button_512x512.png",275,295, 20, 20 ); //+zoom
+  image("https://www.shareicon.net/data/128x128/2015/12/01/680511_zoom_512x512.png",298,295, 20, 20 ); //-zoom
+	image("https://cdn.onlinewebfonts.com/svg/img_509353.png",252,295, 20, 20 ); //centrar
+	image("https://i.ibb.co/gmphMwb/61422.png", 300,7,15,15); //imagen ajustes
+  image("https://i.ibb.co/FHj3fvB/18297.png", 301,30,14,14); //icono borrar funciones
+  image("https://i.ibb.co/WcHJNjn/restart.png",301,52,14,14);	//imagen reiniciar programa
+}
+
+//imagenes información función
+void interfaz_informacion_funcion(){
+  image("https://www.shareicon.net/data/128x128/2016/11/14/852481_info_512x512.png", 3,5,20,22);
+}
+
+//texto para explicar por que infinito = ? 
+void texto_infinito(){
+  text("¿Y qué es el infinito mas que algo",30,260);
+  text("que no podemos conocer?",30,274);
+  textSize(20);
+  text("? = ",120,315);
+  image("https://i.ibb.co/Db8vQkc/d5rbd3u-71db9a64-724f-453c-8e21-52f34c0ff352.png", 165,290, 30,30);
+}
+
+
+
+/*void calculo_punto_inflexion_racional_oblicua(){
+  for(double i= -50; i<=50;i+=0.00001){
+    derivada_racional_o = ((2*x1_racional_o*pow(i,2)*x2_racional_o)-x2_racional_o*(x1_racional_o*pow(i,2)+a_racional_o))/(x2_racional_o*pow(i,2));
+  	if((derivada_racional_o==0)||(derivada_racional_o<=0.0001 && derivada_racional_o>=0.0001)){
+      punto_inflexion_racional_o=i;
+      break;
+    }
+  }
+}
+*/
+
+
+
+//PROGRAMA CUANDO VISUALIZAS LA INFORMACIÓN DE UNA FUNCIÓN, EXTREMOS RELATIVOS, DERIVADA EN UN PUNTO E INTEGRAL DEFINIDA
+void info_constante(){
+  fase[1]=false;
+  fill(223,96,102);
+  rect(0,0,320,320);
+  interfaz_informacion_funcion();
+  textSize(13);
+  fill(4,0,12);
+  text("La función constante  ", 30,50); //texto informativo
+  text("es una recta en la que",30,64);
+  text("el valor de f(x) es igual",30,78);
+  text("en todo su dominio.",30,92);
+  text("Forma: f(x)= k", 30, 106);
+  text("No tiene ni máximos ni mínimos.", 30, 130);
+  //derivada 0 al ser una recta horizontal
+  text("Su derivada en todo su dominio es 0.", 30, 154);	//derivada
+  //integral desde a hasta b, area=base*altura, al ser un simple rectángulo
+  if(mouseX>234 && mouseX<245+textWidth(a_integral_constante) && mouseY>165 && mouseY<180 && mousePressed && mouseButton==LEFTBUTTON){
+    mousePressed=false;
+    a_integral_constante = readDouble();
+  }  
+   if(mouseX>292 && mouseX<310+textWidth(b_integral_constante)+textWidth(a_integral_constante) && mouseY>165 && mouseY<180 && mousePressed && mouseButton==LEFTBUTTON){
+    mousePressed=false;
+    b_integral_constante = readDouble();
+  }
+  integral_definida_constante = abs((b_integral_constante-a_integral_constante)*a_constante);
+  text("Su integral definida desde "+a_integral_constante+" hasta "+b_integral_constante, 30, 178);
+	text("es " + integral_definida_constante + " u.c.", 30, 198);
+}
+
+void info_afin(){
+  fase[1]=false;
+  fill(223,96,102);
+  rect(0,0,320,320);
+  interfaz_informacion_funcion();
+  textSize(13);
+  fill(4,0,12);
+  text("La gráfica de la función", 30,50); //texto informativo
+  text("afín es una recta la cual",30,64);
+  text("tiene pendiente(m) y corta",30,78);
+  text("al eje 'y' en un punto (n)",30,92);
+  text("Forma: f(x) = x+n",30,106);
+  if(x_afin>0){
+    text("Máximo en x = +?",30,140);
+  	text("Mínimo en: x = -?",30,154);
+  }
+  else{
+    text("Mínimo cuando x--> = +?",30,154);
+  	text("Máximo cuando x --> = -?",30,140);
+  }
+  //derivada constante al ser una recta 
+  text("Su derivada en todo su dominio es "+x_afin+'.', 30, 178);
+  //integral desde a hasta b de la función afín
+  if(mouseX>234 && mouseX<245+textWidth(a_integral_constante) && mouseY>200 && mouseY<215 && mousePressed && mouseButton==LEFTBUTTON){
+    mousePressed=false;
+    a_integral_afin = readDouble();
+  }  
+   if(mouseX>292 && mouseX<310+textWidth(b_integral_constante)+textWidth(a_integral_constante) && mouseY>200 && mouseY<215 && mousePressed && mouseButton==LEFTBUTTON){
+    mousePressed=false;
+    b_integral_afin = readDouble();
+  }
+  integral_definida_afin = (x_afin*pow(b_integral_afin,2)/2 + a_afin*b_integral_afin)- (x_afin*pow(a_integral_afin,2)/2 + a_afin*a_integral_afin) ;
+  text("Su integral definida desde "+a_integral_afin+" hasta "+b_integral_afin, 30, 213);
+	text("es " + integral_definida_afin + " u.c.", 30, 233);
+  texto_infinito();
+ 
+
+}
+
+void info_cuadratica(){
+  fase[1]=false;
+  fill(223,96,102);
+  rect(0,0,320,320);
+  interfaz_informacion_funcion();
+  textSize(13);
+  fill(4,0,12);
+  text("La gráfica es una ", 30,50); //texto informativo
+  text("parábola, un tipo ",30,64);
+  text("de curva de dos",30,78);
+  text("dimensiones",30,92);
+  text("Forma:",30,106);
+  text("f(x)= ax2 +bx+c",30,120);//función
+  x_vertice_cuadratica = round((-b_cuadratica)/(2*a_cuadratica));
+  y_vertice_cuadratica=round(pow(x_vertice_cuadratica,2)*a_cuadratica+x_vertice_cuadratica*b_cuadratica+c_cuadratica);
+	if(a_cuadratica>0){
+    text("Máximo en x = +?",30,140);
+  	text("Mínimo en: ("+x_vertice_cuadratica+","+y_vertice_cuadratica+")",30,154);
+  }
+  else{
+    text("Mínimo cuando x--> -?",30,154);
+  	text("Máximo en: ("+x_vertice_cuadratica+","+y_vertice_cuadratica+")",30,140);
+  }
+  //cálculo derivada en un punto
+  if(mouseX>171 && mouseX<188+textWidth(x_derivada_cuadratica) && mouseY>165 && mouseY<180 && mousePressed && mouseButton==LEFTBUTTON){
+    mousePressed=false;
+    x_derivada_cuadratica = readDouble();
+  }
+  y_derivada_cuadratica = a_cuadratica*2*x_derivada_cuadratica+b_cuadratica;
+  text("Su derivada en x= "+x_derivada_cuadratica+" es "+y_derivada_cuadratica+'.', 30, 178);	//derivada  
+  //integral entre a y b de la función cuadrática
+  if(mouseX>234 && mouseX<245+textWidth(a_integral_cuadratica) && mouseY>200 && mouseY<215 && mousePressed && mouseButton==LEFTBUTTON){
+    mousePressed=false;
+    a_integral_cuadratica = readDouble();
+  }  
+   if(mouseX>292 && mouseX<310+textWidth(b_integral_cuadratica)+textWidth(a_integral_cuadratica) && mouseY>200 && mouseY<215 && mousePressed && mouseButton==LEFTBUTTON){
+    mousePressed=false;
+    b_integral_cuadratica = readDouble();
+  }
+  integral_definida_cuadratica = (a_cuadratica*pow(b_integral_cuadratica,3)/3 + b_cuadratica*pow(b_integral_cuadratica,2)/2 + c_cuadratica*b_integral_cuadratica)  -   (a_cuadratica*pow(a_integral_cuadratica,3)/3 + b_cuadratica*pow(a_integral_cuadratica,2)/2 + c_cuadratica*a_integral_cuadratica) ;
+  text("Su integral definida desde "+a_integral_cuadratica+" hasta "+b_integral_cuadratica, 30, 213);
+	text("es " + integral_definida_cuadratica + " u.c.", 30, 233);
+  texto_infinito();
+}
+
+void info_racional(){
+  fase[1]=false;
+  fill(223,96,102);
+  rect(0,0,320,320);
+  interfaz_informacion_funcion();
+  textSize(13);
+  fill(4,0,12);
+  text("La gráfica de la función", 30,50); //texto informativo
+  text("racional es una hipérbola la cual",30,64);
+  text("se aproxima pero nunca alcanza",30,78);
+  text("a las rectas que conocemos como",30,92);
+  text("asíntotas.", 30,106);
+  text("Forma: f(x) = ax+b",30,120);
+  line(132,122,175,122);
+  text("cx+d", 134, 136);
+  if(x1_racional>0){
+    text("Máximo en +? cuando ",30,160);
+    text("x--> " + x_asintota_vertical_oblicua+"-",30,174);
+    text("Mínimo en -? cuando ",30,190);
+    text("x--> "+ x_asintota_vertical_oblicua+"+",30,204);
+  }
+  else{
+    text("Máximo en +? cuando ",30,160);
+    text("x--> "+ x_asintota_vertical_oblicua+"+",30,174);
+    text("Mínimo en -? cuando ",30,190);
+    text("x--> "+ x_asintota_vertical_oblicua+"-",30,204);
+  }
+  //calculo derivada en un punto
+  if(mouseX>171 && mouseX<188+textWidth(x_derivada_racional) && mouseY>205 && mouseY<220 && mousePressed && mouseButton==LEFTBUTTON){
+    mousePressed=false;
+    x_derivada_racional = readDouble();
+  }
+  y_derivada_racional = (x1_racional*(x2_racional*x_derivada_racional+a_racional)-x2_racional*(x1_racional*x_derivada_racional+a_racional))/pow(x2_racional*x_derivada_racional+b_racional,2);
+  text("Su derivada en x= "+x_derivada_racional+" es "+y_derivada_racional+'.', 30, 220);	//derivada  
+  texto_infinito();
+}
+
+void info_radical(){
+  fase[1]=false;
+  fill(223,96,102);
+  rect(0,0,320,320);
+  interfaz_informacion_funcion();
+  textSize(13);
+  fill(4,0,12);
+  text("La función radical es aquella  ", 30,50); //texto informativo
+  text("cuya x se encuentra en el radicando",30,64);
+  text("de la raiz cuadrada..",30,78);
+  text("Su asíntota es y=0",30,92);
+  text("Forma: f(x)= a x+n", 30, 110);
+  line(142,110,146,98); //dibujamos el símbolo de la raiz
+  line(142,110,140,105);
+  line(146,98,153,98);
+  y_extremo_radical=a_radical;
+  if(x_radical>0){
+    text("Máximo cuando x--> +?", 30, 130);
+    text("Mínimo en: (0,"+y_extremo_radical+')', 30, 144);
+  }  
+  else{
+    text("Mínimo cuando x--> +?", 30, 144);
+    text("Máximo en: (0,"+y_extremo_radical+')', 30, 130);
+  }
+  //cálculo derivada en un punto
+  if(mouseX>171 && mouseX<189+textWidth(x_derivada_radical) && mouseY>159 && mouseY<175 && mousePressed && mouseButton==LEFTBUTTON){
+    mousePressed=false;
+    x_derivada_radical = readDouble();
+  }
+  y_derivada_radical = (1/(2*sqrt(x_derivada_radical)))*x_radical;
+  text("Su derivada en x= "+x_derivada_radical+" es "+y_derivada_radical+'.', 30, 170);	//derivada  
+  //integral entre a y b de la función radical
+  if(mouseX>234 && mouseX<245+textWidth(a_integral_radical) && mouseY>200 && mouseY<215 && mousePressed && mouseButton==LEFTBUTTON){
+    mousePressed=false;
+    a_integral_radical = readDouble();
+  }  
+  if(mouseX>292 && mouseX<310+textWidth(b_integral_radical)+textWidth(a_integral_radical) && mouseY>200 && mouseY<215 && mousePressed && mouseButton==LEFTBUTTON){
+    mousePressed=false;
+    b_integral_radical = readDouble();
+  }
+  integral_definida_radical = (x_radical*(pow(b_integral_radical,3/2)/(3/2))+a_radical*b_integral_radical) -  (x_radical*(pow(a_integral_radical,3/2)/(3/2))+a_radical*a_integral_radical);
+  text("Su integral definida desde "+a_integral_radical+" hasta "+b_integral_radical, 30, 213);
+  text("es " + integral_definida_radical + " u.c.", 30, 233);
+  texto_infinito();
+}
+
+void info_exponencial(){
+  fase[1]=false;
+  fill(223,96,102);
+  rect(0,0,320,320);
+  interfaz_informacion_funcion();
+  textSize(13);
+  fill(4,0,12);
+  text("La función exponencial  ", 30,50); //texto informativo
+  text("es aquella cuya x se",30,64);
+  text("encuentra en el exponente.",30,78);
+  text("Su asíntota es y=0",30,92);
+  text("Forma: f(x)= k", 30, 110);
+ 	y_extremo_exponencial=a_exponencial;
+  text("Máximo cuando x--> +?",30,130);
+  text("Mínimo cuando x--> 0, (-?,"+y_extremo_exponencial+")",30,144);
+  //calculo derivada en un punto
+  if(mouseX>171 && mouseX<189+textWidth(x_derivada_radical) && mouseY>159 && mouseY<175 && mousePressed && mouseButton==LEFTBUTTON){
+    mousePressed=false;
+    x_derivada_exponencial = readDouble();
+  }
+  y_derivada_exponencial = pow(x_exponencial, x_derivada_exponencial)*log(x_exponencial);
+  text("Su derivada en x= "+x_derivada_exponencial+" es "+y_derivada_exponencial+'.', 30, 170);	//derivada  
+  //integral entre a y b de la funcion exponencial
+  if(mouseX>234 && mouseX<245+textWidth(a_integral_exponencial) && mouseY>200 && mouseY<215 && mousePressed && mouseButton==LEFTBUTTON){
+    mousePressed=false;
+    a_integral_exponencial = readDouble();
+  }  
+  if(mouseX>292 && mouseX<310+textWidth(b_integral_exponencial)+textWidth(a_integral_exponencial) && mouseY>200 && mouseY<215 && mousePressed && mouseButton==LEFTBUTTON){
+    mousePressed=false;
+    b_integral_exponencial = readDouble();
+  }
+  integral_definida_exponencial = (pow(x_exponencial, b_integral_exponencial)/log(x_exponencial)+a_exponencial*b_integral_exponencial) - (pow(x_exponencial, a_integral_exponencial)/log(x_exponencial)+ a_exponencial*a_integral_exponencial) ;
+  text("Su integral definida desde "+a_integral_exponencial+" hasta "+b_integral_exponencial, 30, 213);
+  text("es " + integral_definida_exponencial + " u.c.", 30, 233);
+  texto_infinito();
+  
+}
+
+void info_logaritmica(){
+  fase[1]=false;
+  fill(223,96,102);
+  rect(0,0,320,320);
+  interfaz_informacion_funcion();
+  textSize(13);
+  fill(4,0,12);
+  text("La función logarítmica  ", 30,50); //texto informativo
+  text("es la inversa de la exponencial,",30,64);
+  text("encontrándose la x en su argumento.",30,78);
+  text("Tiene una asíntota vertical en y=0,",30,92);
+  text("y otra horizontal. Los logarítmos de ",30,106);
+  text("números negativos no existen.",30,120);
+  text("Forma: a*ln(x)+n", 30, 134);
+  if(x_logaritmica>0){
+    text("Máximo cuando x--> +?",30,150);
+    text("Mínimo cuando lim cuando x-->0",30,164);
+  }
+  else{
+    text("Mínimo cuando x--> -?",30,164);
+    text("Máximo cuando cuando x--> 0",30,150);
+  }
+  //calculo derivada en un punto
+  if(mouseX>171 && mouseX<189+textWidth(x_derivada_logaritmica) && mouseY>174 && mouseY<189 && mousePressed && mouseButton==LEFTBUTTON){
+    mousePressed=false;
+    x_derivada_logaritmica = readDouble();
+  }
+  y_derivada_logaritmica = 1/x_derivada_logaritmica;
+  text("Su derivada en x= "+x_derivada_logaritmica+" es "+y_derivada_logaritmica+'.', 30, 185);
+ 	//integral definida entre a y b de la función logarítmica
+  if(mouseX>234 && mouseX<245+textWidth(a_integral_logaritmica) && mouseY>200 && mouseY<215 && mousePressed && mouseButton==LEFTBUTTON){
+    mousePressed=false;
+    a_integral_logaritmica = readDouble();
+  }  
+  if(mouseX>292 && mouseX<310+textWidth(b_integral_logaritmica)+textWidth(a_integral_logaritmica) && mouseY>200 && mouseY<215 && mousePressed && mouseButton==LEFTBUTTON){
+    mousePressed=false;
+    b_integral_logaritmica = readDouble();
+  }
+  integral_definida_logaritmica = (x_logaritmica*( b_integral_logaritmica*log(b_integral_logaritmica)-b_integral_logaritmica ) + a_logaritmica*b_integral_logaritmica) - ( x_logaritmica*( a_integral_logaritmica*log(a_integral_logaritmica)-a_integral_logaritmica ) + a_logaritmica*a_integral_logaritmica );
+  text("Su integral definida desde "+a_integral_logaritmica+" hasta "+b_integral_logaritmica, 30, 213);
+  text("es " + integral_definida_logaritmica + " u.c.", 30, 233);
+  texto_infinito();
+}
+
+void info_racional_oblicua(){
+  fase[1]=false;
+  fill(223,96,102);
+  rect(0,0,320,320);
+  interfaz_informacion_funcion();
+  fill(4,0,12);
+  textSize(7);
+  text("2", 138,83);
+  textSize(10);
+  text("La gráfica de la función", 30,20); //texto informativo
+  text("racional es una hipérbola la cual",30,34);
+  text("se aproxima pero nunca alcanza",30,48);
+  text("a las rectas que conocemos como",30,62);
+  text("asíntotas.", 30,76);
+  text("Forma: f(x) = ax+b",30,90);
+  line(111,92,144,92);
+  text("cx+d", 112, 104);
+  text("Su extremos se pueden obtener",30,125);
+  text("obtiendo las raíces (soluciones)",30,139);
+  text("de su derivada.",30,153);
+  text("Y mediante la segunda derivada:",30,167);
+  text("*Si f(x)'' < 0 --> Máximo en x=k",30,181);
+  text("*Si f(x)'' > 0 --> Mínimo en x=k",30,195);
+  text("¡Intenta sacar su máximo y ",30,209);
+  text("su mínimo por tí mismo!",30,223);
+  //calculo derivada en un punto
+  if(mouseX>141 && mouseX<151+textWidth(x_derivada_racional_o) && mouseY>240 && mouseY<255 && mousePressed && mouseButton==LEFTBUTTON){
+    mousePressed=false;
+    x_derivada_racional_o = readDouble();
+  }
+  y_derivada_racional_o = ( (2*x1_racional_o*x_derivada_racional_o)*x2_racional_o*x_derivada_racional_o-x2_racional_o*(x1_racional_o*pow(x_derivada_racional_o,2)+a_racional_o) )/pow(x2_racional_o*x_derivada_racional_o,2); 
+  text("Su derivada en x= "+x_derivada_racional_o+" es "+y_derivada_racional_o+'.', 30, 250);	//derivada  
+  
+}
+
+void info_seno(){
+  fase[1]=false;
+  fill(223,96,102);
+  rect(0,0,320,320);
+  interfaz_informacion_funcion();
+  textSize(13);
+  fill(4,0,12);
+  text("La función seno es aquella", 30,50); //texto informativo
+  text("que a cada valor (en radianes)",30,64);
+  text("le hace corresponder su seno.",30,78);
+  text("El seno es el valor que se obtiene:",30,92);
+  text("cat.cont./hipotenusa", 30,106);
+  text("Forma: f(x) = a*sin(x)+n",30,120);
+  y_extremo_seno = x_seno+a_seno;
+  text("Máximo en x cada pi rad con y = " + y_extremo_seno,30,140);
+  text("Mínimo en x cada pi rad con y = " + (-x_seno+a_seno),30,154);
+  text("Se trata de una función periodica",30,174);
+  text("Recuerda que 2pi rad = 90º",30,190);
+  //calculo derivada en un punto
+  if(mouseX>168 && mouseX<184+textWidth(x_derivada_seno) && mouseY>197 && mouseY<209 && mousePressed && mouseButton==LEFTBUTTON){
+    mousePressed=false;
+    x_derivada_seno = readDouble();
+  }
+  y_derivada_seno = x_seno*cos(x_derivada_seno);
+  text("Su derivada en x= "+x_derivada_seno+" es "+y_derivada_seno+'.', 30, 210);
+	//integral definida entre a y b de la función seno
+  if(mouseX>234 && mouseX<245+textWidth(a_integral_seno) && mouseY>215 && mouseY<230 && mousePressed && mouseButton==LEFTBUTTON){
+    mousePressed=false;
+    a_integral_seno = readDouble();
+  }  
+  if(mouseX>292 && mouseX<310+textWidth(b_integral_seno)+textWidth(a_integral_seno) && mouseY>215 && mouseY<230 && mousePressed && mouseButton==LEFTBUTTON){
+    mousePressed=false;
+    b_integral_seno = readDouble();
+  }
+  integral_definida_seno = (x_seno*(-cos(b_integral_seno))+a_seno*b_integral_seno) - (x_seno*(-cos(a_integral_seno))+a_seno*a_integral_seno);
+  text("Su integral definida desde "+a_integral_seno+" hasta "+b_integral_seno, 30, 230);
+  text("es " + integral_definida_seno + " u.c.", 30, 250);
+}
+
+void info_coseno(){
+  fase[1]=false;
+  fill(223,96,102);
+  rect(0,0,320,320);
+  interfaz_informacion_funcion();
+  textSize(13);
+  fill(4,0,12);
+  text("La función coseno es aquella ", 30,50); //texto informativo
+  text("que a cada valor (en radianes) ",30,64);
+  text("le hace corresponder su coseno.",30,78);
+  text("El seno es el valor que se obtiene de:",30,92);
+  text("cat.opu./hipotenusa", 30,106);
+  text("Forma: f(x) = a*cos(x)+n",30,120);
+  y_extremo_coseno = x_coseno+a_coseno;
+  text("Máximo en x cada pi rad con y = " + y_extremo_coseno,30,140);
+  text("Mínimo en x cada pi rad con y = " + (-x_coseno+a_coseno),30,154);
+  text("Se trata de una función periodica",30,174);
+  text("Recuerda que 2pi rad = 90º",30,190);
+  //calculo derivada en un punto
+   if(mouseX>168 && mouseX<184+textWidth(x_derivada_coseno) && mouseY>197 && mouseY<209 && mousePressed && mouseButton==LEFTBUTTON){
+    mousePressed=false;
+    x_derivada_coseno = readDouble();
+  }
+  y_derivada_coseno = x_coseno*-sin(x_derivada_coseno);
+  text("Su derivada en x= "+x_derivada_coseno+" es "+y_derivada_coseno+'.', 30, 210);  
+  //integral definida entre a y b de la función coseno
+  if(mouseX>234 && mouseX<245+textWidth(a_integral_coseno) && mouseY>215 && mouseY<230 && mousePressed && mouseButton==LEFTBUTTON){
+    mousePressed=false;
+    a_integral_coseno = readDouble();
+  }  
+  if(mouseX>292 && mouseX<310+textWidth(b_integral_coseno)+textWidth(a_integral_coseno) && mouseY>215 && mouseY<230 && mousePressed && mouseButton==LEFTBUTTON){
+    mousePressed=false;
+    b_integral_coseno = readDouble();
+  }
+  integral_definida_coseno = (x_coseno*(sin(b_integral_coseno))+a_coseno*b_integral_coseno) - (x_coseno*(sin(a_integral_coseno))+a_coseno*a_integral_coseno);
+  text("Su integral definida desde "+a_integral_coseno+" hasta "+b_integral_coseno, 30, 230);
+  text("es " + integral_definida_coseno + " u.c.", 30, 250);
+}
+
+void info_tangente(){
+  fase[1]=false;
+  fill(223,96,102);
+  rect(0,0,320,320);
+  interfaz_informacion_funcion();
+  textSize(13);
+  fill(4,0,12);
+ 	text("La función tangente es aquella", 30,50); //texto informativo
+  text("que a cada valor (en radianes)",30,64);
+  text("le hace corresponder su tangente.",30,78);
+  text("El seno es el valor que se obtiene de:",30,92);
+  text("cat.opu./cat.cont.", 30,106);
+  text("Forma: f(x) = a*tan(x)+n",30,120);
+  text("No tiene ni máximos ni mínimos",30,140);
+  text("Se trata de una función periodica",30,160);
+  text("Recuerda que 2pi rad = 90º",30,180);
+  //calculo derivada en un punto
+  if(mouseX>168 && mouseX<184+textWidth(x_derivada_tangente) && mouseY>197 && mouseY<209 && mousePressed && mouseButton==LEFTBUTTON){
+    mousePressed=false;
+    x_derivada_tangente = readDouble();
+  }
+  y_derivada_tangente = 1/(pow(cos(x_derivada_tangente),2)*x_tangente);
+  text("Su derivada en x= "+x_derivada_tangente+" es "+y_derivada_tangente+'.', 30, 210);  
+	//cálculo integral definida entre a y b de la función tangente
+  if(mouseX>234 && mouseX<245+textWidth(a_integral_tangente) && mouseY>215 && mouseY<230 && mousePressed && mouseButton==LEFTBUTTON){
+    mousePressed=false;
+    a_integral_tangente = readDouble();
+  }  
+  if(mouseX>292 && mouseX<310+textWidth(b_integral_tangente)+textWidth(a_integral_tangente) && mouseY>215 && mouseY<230 && mousePressed && mouseButton==LEFTBUTTON){
+    mousePressed=false;
+    b_integral_tangente = readDouble();
+  }
+  integral_definida_tangente = (x_coseno*(tan(b_integral_tangente))+a_coseno*b_integral_tangente) - (x_tangente*(tan(a_integral_tangente))+a_tangente*a_integral_tangente);
+  text("Su integral definida desde "+a_integral_tangente+" hasta "+b_integral_tangente, 30, 230);
+  text("es " + integral_definida_tangente + " u.c.", 30, 250);
+}
+
+//PROGRAMA CUANDO SE VISUALIZA LA FÓRMULA DE LA FUNCIÓN, PUDIÉNDOLA CAMBIAR
+void formula_constante(){
+  click_fuera_configuracion_funcion(0);
+  cambiar_color_funcion(0);
+  interfaz_funcion_seleccionar();  
+  textSize(16);
+  fill(255,255,255);
+  text("f(x) = ", 15, 60); //función
+  text(a_constante, 15+textWidth("f(x) = "),60);
+
+  //botón termino a
+  if(mouseX>15+textWidth("f(x) = ") && mouseX<15+textWidth("f(x) = ") + textWidth(a_constante) && mouseY>45 && mouseY<60 && mousePressed && mouseButton==LEFTBUTTON && (millis()-cooldown)>300){
+    cooldown = millis();	mousePressed = false; a_constante = readDouble();
+  }
+  //boton listo
+  if(mouseX>30 && mouseX<50 && mouseY>5 && mouseY<25 && mousePressed && mouseButton == LEFTBUTTON){
+    click_listo_funcion(0);
+  } 
+  //cancelar y borrar función 
+  if(mouseX>60 && mouseX<80 && mouseY>5 && mouseY<23 && mousePressed && mouseButton == LEFTBUTTON){
+    click_borrar_funcion(0);
+  }   
+
+}
+
+void formula_afin(){
+  click_fuera_configuracion_funcion(1);
+  cambiar_color_funcion(1);
+  interfaz_funcion_seleccionar();  
+  fill(255,255,255);
+  textSize(16);
+  text("f(x) = ", 15, 60); //función
+  text(x_afin,15 + textWidth("f(x) = "), 60); //coeficiente de x
+  text("x",15+ textWidth("f(x) = ") + textWidth(x_afin), 60); //x
+  if(a_afin>=0){
+    espacio_opera_afin = textWidth('+');  
+    text('+', 15 + textWidth("f(x) = ") + textWidth(x_afin) + textWidth("x"), 60);	//operador "+"
+  }
+  else espacio_opera_afin = 0;
+  text(a_afin,  15 + textWidth("f(x) = ") + textWidth("x") + textWidth(x_afin)+espacio_opera_afin,60); //termino a
+
+  //botón coeficiente x
+  if(mouseX>15+textWidth("f(x) = ") && mouseX<15+textWidth("f(x) = ") + textWidth(x_afin)+textWidth("x") && mouseY>45 && mouseY<60 && mousePressed && mouseButton==LEFTBUTTON && (millis()-cooldown)>300){
+    cooldown = millis();	mousePressed = false; x_afin = readDouble();
+  }
+  //botón término independiente
+  if(mouseX>15+textWidth("f(x) = ") + textWidth(x_afin)+textWidth("x") + espacio_opera_afin && mouseX<15+textWidth("f(x) = ") + textWidth(x_afin)+textWidth("x") +textWidth('+') + textWidth(a_afin) && mouseY>45 && mouseY<60 && mousePressed && mouseButton==LEFTBUTTON && (millis()-cooldown)>300){
+    cooldown = millis();	mousePressed = false; a_afin = readDouble();
+  }
+  //boton listo
+  if(mouseX>30 && mouseX<50 && mouseY>5 && mouseY<25 && mousePressed && mouseButton == LEFTBUTTON){
+    click_listo_funcion(1);
+  } 
+  //cancelar y borrar función 
+  if(mouseX>60 && mouseX<80 && mouseY>5 && mouseY<23 && mousePressed && mouseButton == LEFTBUTTON){
+    click_borrar_funcion(1);
+  }   
+}
+
+void formula_cuadratica(){
+  click_fuera_configuracion_funcion(2);
+  cambiar_color_funcion(2);
+  interfaz_funcion_seleccionar();  
+  fill(255,255,255);
+  textSize(16);
+  text("f(x)=", 5, 60); //función
+  text(a_cuadratica,5 + textWidth("f(x)="), 60); //coeficiente de a
+  text("x",5+ textWidth("f(x)=") + textWidth(a_cuadratica), 60); //x
+  if(b_cuadratica>=0){
+    text('+', 5 + textWidth("f(x)=") + textWidth(a_cuadratica) + textWidth("x"), 60);	//operador "+"
+    espacio_opera_cuadratica1 = textWidth("+");
+  } 
+  else   espacio_opera_cuadratica1 = 0;
+  text(b_cuadratica,  5 + textWidth("f(x)=") + textWidth("x") + textWidth(a_cuadratica)+espacio_opera_cuadratica1,60); //termino b
+  text("x",  5 + textWidth("f(x)=") + textWidth("x") + textWidth(a_cuadratica)+espacio_opera_cuadratica1+textWidth(b_cuadratica), 60); //x
+  if(c_cuadratica>=0){
+    text('+',  5 + textWidth("f(x)=") + textWidth("x") + textWidth(a_cuadratica)+espacio_opera_cuadratica1+textWidth(b_cuadratica)+textWidth("x"),60); //opera 2
+    espacio_opera_cuadratica2 = textWidth("+");
+  }  
+  else espacio_opera_cuadratica2 = 0;  
+  text(c_cuadratica,  5 + textWidth("f(x)=") + textWidth("x") + textWidth(a_cuadratica)+espacio_opera_cuadratica1+textWidth(b_cuadratica)+espacio_opera_cuadratica2+textWidth("x"),60); //termino b
+  double pix = 5+ textWidth("f(x)=") + textWidth(a_cuadratica);
+  textSize(10);
+  text("2", pix+8, 52); //x
+  textSize(16);
+  //botón a
+  if(mouseX>5+textWidth("f(x)=") && mouseX<5+textWidth("f(x)=") + textWidth(a_cuadratica)+textWidth("x") && mouseY>45 && mouseY<60 && mousePressed && mouseButton==LEFTBUTTON && (millis()-cooldown)>300){
+    cooldown = millis();	mousePressed = false; a_cuadratica = readDouble();
+  }
+  //botón b
+  if(mouseX>5+textWidth("f(x)=") + textWidth(a_cuadratica)+textWidth("x") +espacio_opera_cuadratica1 && mouseX<5+textWidth("f(x)=") + textWidth(a_cuadratica)+textWidth("x") + espacio_opera_cuadratica1 + textWidth(b_cuadratica) && mouseY>45 && mouseY<60 && mousePressed && mouseButton==LEFTBUTTON && (millis()-cooldown)>300){
+    cooldown = millis();	mousePressed = false; b_cuadratica = readDouble();
+  }
+  //botón c
+  if(mouseX>5+textWidth("f(x)=") + textWidth(a_cuadratica)+textWidth("x") + espacio_opera_cuadratica1+textWidth(b_cuadratica) + espacio_opera_cuadratica2 && mouseX<5+textWidth("f(x)=") + textWidth(a_cuadratica)+textWidth("x") + espacio_opera_cuadratica1 + textWidth(b_cuadratica) + espacio_opera_cuadratica2 +textWidth("x")+textWidth(c_cuadratica) && mouseY>45 && mouseY<60 && mousePressed && mouseButton==LEFTBUTTON && (millis()-cooldown)>300){
+    cooldown = millis();	mousePressed = false; c_cuadratica = readDouble();
+  }
+  //boton listo
+  if(mouseX>30 && mouseX<50 && mouseY>5 && mouseY<25 && mousePressed && mouseButton == LEFTBUTTON){
+    click_listo_funcion(2);
+  } 
+  //cancelar y borrar función 
+  if(mouseX>60 && mouseX<80 && mouseY>5 && mouseY<23 && mousePressed && mouseButton == LEFTBUTTON){
+    click_borrar_funcion(2);
+  }   
+}
+
+void formula_racional(){
+  click_fuera_configuracion_funcion(3);
+  cambiar_color_funcion(3);
+  interfaz_funcion_seleccionar();  
+  fill(255,255,255);
+  textSize(16);
+  text("f(x) = ", 15, 60); //función
+  text(x1_racional,15 + textWidth("f(x) = "), 60); //coeficiente de x
+  text("x",15+ textWidth("f(x) = ") + textWidth(x1_racional), 60); //x
+  line(67,65,117,65);
+  text(x2_racional,15 + textWidth("f(x) = "), 83); //coeficiente de x
+  text("x",15+ textWidth("f(x) = ") + textWidth(x2_racional), 83); //x
+
+  if(a_racional>=0){
+    espacio_opera_racional1 = textWidth('+');  
+    text('+', 15 + textWidth("f(x) = ") + textWidth(x1_racional) + textWidth("x"),60);	//operador "+"
+  }
+  else espacio_opera_racional1 = 0;
+  text(a_racional,  15 + textWidth("f(x) = ") + textWidth("x") + textWidth(x1_racional)+espacio_opera_racional1,60); //termino a
+
+  if(b_racional>=0){
+    espacio_opera_racional2 = textWidth('+');  
+    text('+', 15 + textWidth("f(x) = ") + textWidth(x2_racional) + textWidth("x"),83);	//operador "+"
+  }
+  else espacio_opera_racional2 = 0;
+  text(b_racional,  15 + textWidth("f(x) = ") + textWidth("x") + textWidth(x2_racional)+espacio_opera_racional2,83); //termino b
+
+
+
+  //botón coeficiente x numerador
+  if(mouseX>15+textWidth("f(x) = ") && mouseX<15+textWidth("f(x) = ") + textWidth(x1_racional)+textWidth("x") && mouseY>40 && mouseY<60 && mousePressed && mouseButton==LEFTBUTTON && (millis()-cooldown)>300){
+    cooldown = millis();	mousePressed = false; x1_racional = readDouble();
+  }
+  //botón coeficiente x denominador
+  if(mouseX>15+textWidth("f(x) = ") && mouseX<15+textWidth("f(x) = ") + textWidth(x2_racional)+textWidth("x") && mouseY>70 && mouseY<83 && mousePressed && mouseButton==LEFTBUTTON && (millis()-cooldown)>300){
+    cooldown = millis();	mousePressed = false; x2_racional = readDouble();
+  }
+  //botón término independiente numerador
+  if(mouseX>15+textWidth("f(x) = ") + textWidth(x1_racional)+textWidth("x") + espacio_opera_racional1 && mouseX<15+textWidth("f(x) = ") + textWidth(x1_racional)+textWidth("x") + textWidth(a_racional) + textWidth(espacio_opera_racional1) && mouseY>45 && mouseY<60 && mousePressed && mouseButton==LEFTBUTTON && (millis()-cooldown)>300){
+    cooldown = millis();	mousePressed = false; a_racional = readDouble();
+  } 
+  //botón término independiente denominador
+  if(mouseX>15+textWidth("f(x) = ") + textWidth(x2_racional)+textWidth("x") + espacio_opera_racional2 && mouseX<15+textWidth("f(x) = ") + textWidth(x2_racional)+textWidth("x") +textWidth('+') + textWidth(b_racional) && mouseY>70 && mouseY<83 && mousePressed && mouseButton==LEFTBUTTON && (millis()-cooldown)>300){
+    cooldown = millis();	mousePressed = false; b_racional = readDouble();
+  }
+
+  //boton listo
+  if(mouseX>30 && mouseX<50 && mouseY>5 && mouseY<25 && mousePressed && mouseButton == LEFTBUTTON){
+    click_listo_funcion(3);
+  } 
+  //cancelar y borrar función 
+  if(mouseX>60 && mouseX<80 && mouseY>5 && mouseY<23 && mousePressed && mouseButton == LEFTBUTTON){
+    click_borrar_funcion(3);
+  }   
+}
+
+void formula_radical(){
+  click_fuera_configuracion_funcion(4);
+  cambiar_color_funcion(4);
+  interfaz_funcion_seleccionar();  
+  fill(255,255,255);
+  textSize(16);
+  text("f(x) = ", 15, 60); //función
+  text(x_radical,15 + textWidth("f(x) = "), 60); //coeficiente de x
+  text("x",15+ textWidth("f(x) = ") + textWidth(x_radical), 60); //x
+  line(15+ textWidth("f(x) = ") + textWidth(x_radical),60,15+ textWidth("f(x) = ") + textWidth(x_radical),43); //dibujamos el símbolo de la raiz
+  line(15+ textWidth("f(x) = ") + textWidth(x_radical),60,15+ textWidth("f(x) = ") + textWidth(x_radical)-2,43);
+  line(15+ textWidth("f(x) = ") + textWidth(x_radical)-2,43,15+ textWidth("f(x) = ") + textWidth(x_radical)+11,43); 
+  if(a_radical>=0){
+    espacio_opera_radical = textWidth('+');  
+    text('+', 15 + textWidth("f(x) = ") + textWidth(x_radical) + textWidth("x"), 60);	//operador "+"
+  }
+  else espacio_opera_radical = 0;
+  text(a_radical,  15 + textWidth("f(x) = ") + textWidth("x") + textWidth(x_radical)+espacio_opera_radical,60); //termino a
+
+  //botón coeficiente x
+  if(mouseX>15+textWidth("f(x) = ") && mouseX<15+textWidth("f(x) = ") + textWidth(x_radical)+textWidth("x") && mouseY>45 && mouseY<60 && mousePressed && mouseButton==LEFTBUTTON && (millis()-cooldown)>300){
+    cooldown = millis();	mousePressed = false; x_radical = readDouble();
+  }
+  //botón término independiente
+  if(mouseX>15+textWidth("f(x) = ") + textWidth(x_radical)+textWidth("x") + espacio_opera_radical && mouseX<15+textWidth("f(x) = ") + textWidth(x_radical)+textWidth("x") +textWidth('+') + textWidth(a_radical) && mouseY>45 && mouseY<60 && mousePressed && mouseButton==LEFTBUTTON && (millis()-cooldown)>300){
+    cooldown = millis();	mousePressed = false; a_radical = readDouble();
+  }
+  //boton listo
+  if(mouseX>30 && mouseX<50 && mouseY>5 && mouseY<25 && mousePressed && mouseButton == LEFTBUTTON){
+    click_listo_funcion(4);
+  } 
+  //cancelar y borrar función 
+  if(mouseX>60 && mouseX<80 && mouseY>5 && mouseY<23 && mousePressed && mouseButton == LEFTBUTTON){
+    click_borrar_funcion(4);
+  }   
+}
+
+void formula_exponencial(){
+  click_fuera_configuracion_funcion(5);
+  cambiar_color_funcion(5);
+  interfaz_funcion_seleccionar();  
+  fill(255,255,255);	
+  textSize(16);
+  text("f(x) = ", 15, 60); //función
+  text(x_exponencial,15 + textWidth("f(x) = "), 60); //coeficiente de x
+  text("x",15+ textWidth("f(x) = ") + textWidth(x_exponencial), 50); //x
+  if(a_exponencial>=0){
+    espacio_opera_exponencial = textWidth('+');  
+    text('+', 15 + textWidth("f(x) = ") + textWidth(x_exponencial) + textWidth("x"), 60);	//operador "+"
+  }
+  else espacio_opera_exponencial = 0;
+  text(a_exponencial,  15 + textWidth("f(x) = ") + textWidth("x") + textWidth(x_exponencial)+espacio_opera_exponencial,60); //termino a
+
+  //botón coeficiente x
+  if(mouseX>15+textWidth("f(x) = ") && mouseX<15+textWidth("f(x) = ") + textWidth(x_exponencial)+textWidth("x") && mouseY>45 && mouseY<60 && mousePressed && mouseButton==LEFTBUTTON && (millis()-cooldown)>300){
+    cooldown = millis();	mousePressed = false; x_exponencial = readDouble();
+  }
+  //botón término independiente
+  if(mouseX>15+textWidth("f(x) = ") + textWidth(x_exponencial)+textWidth("x") + espacio_opera_exponencial && mouseX<15+textWidth("f(x) = ") + textWidth(x_exponencial)+textWidth("x") +textWidth('+') + textWidth(a_afin) && mouseY>45 && mouseY<60 && mousePressed && mouseButton==LEFTBUTTON && (millis()-cooldown)>300){
+    cooldown = millis();	mousePressed = false; a_exponencial = readDouble();
+  }
+  //boton listo
+  if(mouseX>30 && mouseX<50 && mouseY>5 && mouseY<25 && mousePressed && mouseButton == LEFTBUTTON){
+    click_listo_funcion(5);
+  } 
+  //cancelar y borrar función 
+  if(mouseX>60 && mouseX<80 && mouseY>5 && mouseY<23 && mousePressed && mouseButton == LEFTBUTTON){
+    click_borrar_funcion(5);
+  }  
+}
+
+void formula_logaritmica(){
+  click_fuera_configuracion_funcion(6);
+  cambiar_color_funcion(6);
+  interfaz_funcion_seleccionar();  
+  fill(255,255,255);
+  textSize(16);
+  text("f(x) = ", 15, 60); //función
+  text(x_logaritmica,15 + textWidth("f(x) = "), 60); //coeficiente de x
+  text("ln(x)",15+ textWidth("f(x) = ") + textWidth(x_logaritmica), 60); //x
+  if(a_logaritmica>=0){
+    espacio_opera_logaritmica = textWidth('+');  
+    text('+', 15 + textWidth("f(x) = ") + textWidth(x_logaritmica) + textWidth("ln(x)"), 60);	//operador "+"
+  }
+  else espacio_opera_logaritmica = 0;
+  text(a_logaritmica,  15 + textWidth("f(x) = ") + textWidth("ln(x)") + textWidth(x_logaritmica)+espacio_opera_logaritmica,60); //termino a
+
+  //botón coeficiente logarítmo 
+  if(mouseX>15+textWidth("f(x) = ") && mouseX<15+textWidth("f(x) = ") + textWidth(x_logaritmica)+textWidth("ln(x)") && mouseY>45 && mouseY<60 && mousePressed && mouseButton==LEFTBUTTON && (millis()-cooldown)>300){
+    cooldown = millis();	mousePressed = false; x_logaritmica = readDouble();
+  }
+  //botón término independiente
+  if(mouseX>15+textWidth("f(x) = ") + textWidth(x_logaritmica)+textWidth("ln(x)") + espacio_opera_logaritmica && mouseX<15+textWidth("f(x) = ") + textWidth(x_logaritmica)+textWidth("ln(x)") +textWidth('+') + textWidth(a_logaritmica) && mouseY>45 && mouseY<60 && mousePressed && mouseButton==LEFTBUTTON && (millis()-cooldown)>300){
+    cooldown = millis();	mousePressed = false; a_logaritmica = readDouble();
+  }
+  //boton listo
+  if(mouseX>30 && mouseX<50 && mouseY>5 && mouseY<25 && mousePressed && mouseButton == LEFTBUTTON){
+    click_listo_funcion(6);
+  } 
+  //cancelar y borrar función 
+  if(mouseX>60 && mouseX<80 && mouseY>5 && mouseY<23 && mousePressed && mouseButton == LEFTBUTTON){
+    click_borrar_funcion(6);
+  }   
+}
+
+void formula_racional_oblicua(){
+  click_fuera_configuracion_funcion(7);
+  cambiar_color_funcion(7);
+  interfaz_funcion_seleccionar();  
+  fill(255,255,255);
+  textSize(11);
+  text("2",15+ textWidth("f(x) = ") + textWidth(x1_racional_o)+ 30, 48); //x
+  textSize(16);
+  text("f(x) = ", 15, 60); //función
+  text(x1_racional_o,15 + textWidth("f(x) = "), 60); //coeficiente de x
+  text("x",15+ textWidth("f(x) = ") + textWidth(x1_racional_o), 60); //x
+  line(67,65,117,65);
+  text(x2_racional_o,15+10 + textWidth("f(x) = "), 83); //coeficiente de x
+  text("x",15+ 10+ textWidth("f(x) = ") + textWidth(x2_racional_o), 83); //x
+
+  if(a_racional_o>=0){
+    espacio_opera_racional_o1 = textWidth('+');  
+    text('+', 15 + textWidth("f(x) = ") + textWidth(x1_racional_o) + textWidth("x"),60);	//operador "+"
+  }
+  else espacio_opera_racional_o1 = 0;
+  text(a_racional_o,  15 + textWidth("f(x) = ") + textWidth("x") + textWidth(x1_racional_o)+espacio_opera_racional_o1,60); //termino a
+
+
+
+  //botón coeficiente x numerador
+  if(mouseX>15+textWidth("f(x) = ") && mouseX<15+textWidth("f(x) = ") + textWidth(x1_racional_o)+textWidth("x") && mouseY>40 && mouseY<60 && mousePressed && mouseButton==LEFTBUTTON && (millis()-cooldown)>300){
+    cooldown = millis();	mousePressed = false; x1_racional_o = readDouble();
+  }
+  //botón coeficiente x denominador
+  if(mouseX>15+textWidth("f(x) = ") && mouseX<15+textWidth("f(x) = ") + textWidth(x2_racional_o)+textWidth("x") && mouseY>40 && mouseY<60 && mousePressed && mouseButton==LEFTBUTTON && (millis()-cooldown)>300){
+    cooldown = millis();	mousePressed = false; x2_racional_o = readDouble();
+  }
+  //botón término independiente numerador
+  if(mouseX>15+textWidth("f(x) = ") + textWidth(x1_racional_o)+textWidth("x") + espacio_opera_racional_o1 && mouseX<15+textWidth("f(x) = ") + textWidth(x1_racional_o)+textWidth("x") + textWidth(a_racional_o) + textWidth(espacio_opera_racional_o1) && mouseY>45 && mouseY<60 && mousePressed && mouseButton==LEFTBUTTON && (millis()-cooldown)>300){
+    cooldown = millis();	mousePressed = false; a_racional_o = readDouble();
+  } 
+
+  //boton listo
+  if(mouseX>30 && mouseX<50 && mouseY>5 && mouseY<25 && mousePressed && mouseButton == LEFTBUTTON){
+    click_listo_funcion(7);
+  } 
+  //cancelar y borrar función 
+  if(mouseX>60 && mouseX<80 && mouseY>5 && mouseY<23 && mousePressed && mouseButton == LEFTBUTTON){
+    click_borrar_funcion(7);
+  }   
+}
+
+void formula_seno(){
+  click_fuera_configuracion_funcion(8);
+  cambiar_color_funcion(8);
+  interfaz_funcion_seleccionar();  
+  fill(255,255,255);
+  textSize(16);
+  text("f(x) = ", 15, 60); //función
+  text(x_seno,15 + textWidth("f(x) = "), 60); //coeficiente de x
+  text("sin(x)",15+ textWidth("f(x) = ") + textWidth(x_seno), 60); //x
+  if(a_seno>=0){
+    espacio_opera_seno = textWidth('+');  
+    text('+', 15 + textWidth("f(x) = ") + textWidth(x_seno) + textWidth("sin(x)"), 60);	//operador "+"
+  }
+  else espacio_opera_seno = 0;
+  text(a_seno,  15 + textWidth("f(x) = ") + textWidth("sin(x)") + textWidth(x_seno)+espacio_opera_seno,60); //termino a
+
+  //botón coeficiente x
+  if(mouseX>15+textWidth("f(x) = ") && mouseX<15+textWidth("f(x) = ") + textWidth(x_seno)+textWidth("sin(x)") && mouseY>45 && mouseY<60 && mousePressed && mouseButton==LEFTBUTTON && (millis()-cooldown)>300){
+    cooldown = millis();	mousePressed = false; x_seno = readDouble();
+  }
+  //botón término independiente
+  if(mouseX>15+textWidth("f(x) = ") + textWidth(x_seno)+textWidth("sin(x)") + espacio_opera_seno && mouseX<15+textWidth("f(x) = ") + textWidth(x_seno)+textWidth("sin(x)") +textWidth('+') + textWidth(a_seno) && mouseY>45 && mouseY<60 && mousePressed && mouseButton==LEFTBUTTON && (millis()-cooldown)>300){
+    cooldown = millis();	mousePressed = false; a_seno = readDouble();
+  }
+  //boton listo
+  if(mouseX>30 && mouseX<50 && mouseY>5 && mouseY<25 && mousePressed && mouseButton == LEFTBUTTON){
+    click_listo_funcion(8);
+  } 
+  //cancelar y borrar función 
+  if(mouseX>60 && mouseX<80 && mouseY>5 && mouseY<23 && mousePressed && mouseButton == LEFTBUTTON){
+    click_borrar_funcion(8);
+  }   
+}
+
+void formula_coseno(){
+  click_fuera_configuracion_funcion(9);
+  cambiar_color_funcion(9);
+  interfaz_funcion_seleccionar();  
+  fill(255,255,255);
+  textSize(16);
+  text("f(x) = ", 15, 60); //función
+  text(x_coseno,15 + textWidth("f(x) = "), 60); //coeficiente de x
+  text("cos(x)",15+ textWidth("f(x) = ") + textWidth(x_coseno), 60); //x
+  if(a_coseno>=0){
+    espacio_opera_coseno = textWidth('+');  
+    text('+', 15 + textWidth("f(x) = ") + textWidth(x_coseno) + textWidth("sin(x)") + textWidth(" "), 60);	//operador "+"
+  }
+  else espacio_opera_coseno = 0;
+  text(a_coseno,  15 + textWidth("f(x) = ") + textWidth("sin(x)") + textWidth(x_coseno)+espacio_opera_coseno + textWidth(" "),60); //termino a
+
+  //botón coeficiente x
+  if(mouseX>15+textWidth("f(x) = ") && mouseX<15+textWidth("f(x) = ") + textWidth(x_coseno)+textWidth("sin(x)") && mouseY>45 && mouseY<60 && mousePressed && mouseButton==LEFTBUTTON && (millis()-cooldown)>300){
+    cooldown = millis();	mousePressed = false; x_coseno = readDouble();
+  }
+  //botón término independiente
+  if(mouseX>15+textWidth("f(x) = ") + textWidth(x_coseno)+textWidth("sin(x)") + espacio_opera_coseno && mouseX<15+textWidth("f(x) = ") + textWidth(x_coseno)+textWidth("sin(x)") +textWidth('+') + textWidth(a_coseno) && mouseY>45 && mouseY<60 && mousePressed && mouseButton==LEFTBUTTON && (millis()-cooldown)>300){
+    cooldown = millis();	mousePressed = false; a_coseno = readDouble();
+  }
+  //boton listo
+  if(mouseX>30 && mouseX<50 && mouseY>5 && mouseY<25 && mousePressed && mouseButton == LEFTBUTTON){
+    click_listo_funcion(9);
+  } 
+  //cancelar y borrar función 
+  if(mouseX>60 && mouseX<80 && mouseY>5 && mouseY<23 && mousePressed && mouseButton == LEFTBUTTON){
+    click_borrar_funcion(9);
+  }   
+}
+
+void formula_tangente(){
+  click_fuera_configuracion_funcion(10);
+  cambiar_color_funcion(10);
+  interfaz_funcion_seleccionar();  
+  fill(255,255,255);
+  textSize(16);
+  text("f(x) = ", 15, 60); //función
+  text(x_tangente,15 + textWidth("f(x) = "), 60); //coeficiente de x
+  text("tan(x)",15+ textWidth("f(x) = ") + textWidth(x_tangente), 60); //x
+  if(a_tangente>=0){
+    espacio_opera_tangente = textWidth('+');  
+    text('+', 15 + textWidth("f(x) = ") + textWidth(x_tangente) + textWidth("sin(x)"), 60);	//operador "+"
+  }
+  else espacio_opera_tangente = 0;
+  text(a_tangente,  15 + textWidth("f(x) = ") + textWidth("sin(x)") + textWidth(x_tangente)+espacio_opera_tangente,60); //termino a
+
+  //botón coeficiente x
+  if(mouseX>15+textWidth("f(x) = ") && mouseX<15+textWidth("f(x) = ") + textWidth(x_tangente)+textWidth("sin(x)") && mouseY>45 && mouseY<60 && mousePressed && mouseButton==LEFTBUTTON && (millis()-cooldown)>300){
+    cooldown = millis();	mousePressed = false; x_tangente = readDouble();
+  }
+  //botón término independiente
+  if(mouseX>15+textWidth("f(x) = ") + textWidth(x_tangente)+textWidth("sin(x)") + espacio_opera_tangente && mouseX<15+textWidth("f(x) = ") + textWidth(x_tangente)+textWidth("sin(x)") +textWidth('+') + textWidth(a_coseno) && mouseY>45 && mouseY<60 && mousePressed && mouseButton==LEFTBUTTON && (millis()-cooldown)>300){
+    cooldown = millis();	mousePressed = false; a_tangente = readDouble();
+  }
+  //boton listo
+  if(mouseX>30 && mouseX<50 && mouseY>5 && mouseY<25 && mousePressed && mouseButton == LEFTBUTTON){
+    click_listo_funcion(10);
+  } 
+  //cancelar y borrar función 
+  if(mouseX>60 && mouseX<80 && mouseY>5 && mouseY<23 && mousePressed && mouseButton == LEFTBUTTON){
+    click_borrar_funcion(10);
+  }   
+}
+
+//PROGRAMA QUE DIBUJA LAS FUNCIONES
+void dibuja_constante(){
+  strokeWeight(1);
+  stroke(color_funcion[0][0],color_funcion[0][1],color_funcion[0][2]);
+  xi = minx;
+  while(xi<=maxx){
+    yi = a_constante; 
+    double y=-yi*zoom+centropos[1];
+    
+    if(y>=0 && y<=320)point(xi+centropos[0], y);
+    xi= xi+(7/zoom)*coeficiente_puntos;
+	}
+}
+
+void dibuja_afin(){
+  strokeWeight(1);
+  stroke(color_funcion[1][0],color_funcion[1][1],color_funcion[1][2]);
+  xi = minx;
+  while(xi<=maxx){
+    yi = x_afin*(xi/zoom)+a_afin; 
+    double y=-yi*zoom+centropos[1];
+    
+    if(y>=0 && y<=320)point(xi+centropos[0], y);
+    xi= xi+(1/zoom)*coeficiente_puntos;
+	}
+}
+
+void dibuja_cuadratica(){  
+  strokeWeight(1);
+  stroke(color_funcion[2][0],color_funcion[2][1],color_funcion[2][2]);
+  xi = minx;
+  while(xi<=maxx){
+    yi = pow(xi/zoom,2)*a_cuadratica+(xi/zoom)*b_cuadratica+c_cuadratica; 
+    double y=-yi*zoom+centropos[1];
+    
+    if(y>=0 && y<=320)point(xi+centropos[0], y);
+    xi= xi+(0.5/zoom)*coeficiente_puntos;
+	}
+}
+
+void dibuja_racional(){  
+  strokeWeight(1);
+  stroke(color_funcion[3][0],color_funcion[3][1],color_funcion[3][2]);
+  xi = minx;
+  while(xi<=maxx){
+    yi = ((xi/zoom)*x1_racional+a_racional)/((xi/zoom)*x2_racional+b_racional); 
+    double y=-yi*zoom+centropos[1];
+    
+    if(y>=0 && y<=320)point(xi+centropos[0], y);
+    xi= xi+(0.5/zoom)*coeficiente_puntos;
+	} 
+
+  //ASÍNTOTAS
+  stroke(131,99,0);
+  strokeWeight(1);
+  //asíntota horizontal
+  xi = minx;
+  yi = x1_racional/x2_racional;
+  double y=-yi*zoom+centropos[1];
+  line(0,y,320,y);
+  
+  
+  
+  //asíntota vertical
+  x_asintota_vertical_oblicua = (-b_racional)/x2_racional;
+  double x =x_asintota_vertical_oblicua*zoom+centropos[0];
+  line(x,0,x,320);
+  
+}
+
+void dibuja_radical(){
+  strokeWeight(1);
+  stroke(color_funcion[4][0],color_funcion[4][1],color_funcion[4][2]);
+  xi = minx;
+  while(xi<=maxx){
+    yi = x_radical*sqrt(xi/zoom)+a_radical; 
+    double y=-yi*zoom+centropos[1];
+    
+    if(y>=0 && y<=320)point(xi+centropos[0], y);
+    xi= xi+(2/zoom)*coeficiente_puntos;
+	}
+}
+
+void dibuja_exponencial(){
+  strokeWeight(1);
+  stroke(color_funcion[5][0],color_funcion[5][1],color_funcion[5][2]);
+  xi = minx;
+  while(xi<=maxx){
+   yi = pow(x_exponencial,xi/zoom)+a_exponencial; 
+   double y=-yi*zoom+centropos[1];
+    
+   if(y>=0 && y<=320)point(xi+centropos[0], y);
+ 	 xi= xi+(0.5/zoom)*coeficiente_puntos;
+	}
+}
+
+void dibuja_logaritmica(){
+  strokeWeight(1);
+  stroke(color_funcion[6][0],color_funcion[6][1],color_funcion[6][2]);
+  xi = minx;
+  while(xi<=maxx){
+   yi = x_logaritmica*log(xi*zoom)+a_logaritmica;  
+   double y=-yi*zoom+centropos[1];
+    
+   if(y>=0 && y<=320)point(xi+centropos[0], y);
+   xi= xi+(5/zoom)*coeficiente_puntos;
+	}
+  
+}
+
+void dibuja_racional_oblicua(){  
+  strokeWeight(1);
+  stroke(color_funcion[7][0],color_funcion[7][1],color_funcion[7][2]);
+  xi = minx;
+  while(xi<=maxx){
+    yi = ((pow(xi/zoom,2))*x1_racional_o+a_racional_o)/((xi/zoom)*x2_racional_o); 
+    double y=-yi*zoom+centropos[1];
+    
+    if(y>=0 && y<=320)point(xi+centropos[0], y);
+    xi= xi+(0.5/zoom)*coeficiente_puntos;
+	} 
+
+  //ASÍNTOTA oblicua
+  stroke(255,205,0);
+  strokeWeight(1);
+	m_asintota_oblicua = ((pow(100000000/zoom,2)*x1_racional_o+a_racional_o)/((100000000/zoom)*x2_racional_o))/(100000000/zoom);
+  n_asintota_oblicua = (pow(100000000/zoom,2)*x1_racional_o+a_racional_o)/((100000000/zoom)*x2_racional_o)-m_asintota_oblicua*(100000000/zoom);
+
+  xi = minx;
+  while(xi<=maxx){
+    yi = m_asintota_oblicua*(xi/zoom)+n_asintota_oblicua; 
+    double y=-yi*zoom+centropos[1];
+    
+    if(y>=0 && y<=320)point(xi+centropos[0], y);
+    xi= xi+(5/zoom)*coeficiente_puntos;
+	}
+  
+}
+
+void dibuja_seno(){
+  strokeWeight(1);
+  stroke(color_funcion[8][0],color_funcion[8][1],color_funcion[8][2]);
+  xi = minx;
+  while(xi<=maxx){
+    yi = x_seno*sin(xi/zoom)+a_seno; 
+    double y=-yi*zoom+centropos[1];
+    
+    if(y>=0 && y<=320)point(xi+centropos[0], y);
+    xi= xi+(3/zoom)*coeficiente_puntos;
+	}
+}
+
+void dibuja_coseno(){
+  strokeWeight(1);
+  stroke(color_funcion[9][0],color_funcion[9][1],color_funcion[9][2]);
+  xi = minx;
+  while(xi<=maxx){
+    yi = x_coseno*cos(xi/zoom)+a_coseno; 
+    double y=-yi*zoom+centropos[1];
+    
+    if(y>=0 && y<=320)point(xi+centropos[0], y);
+    xi= xi+(3/zoom)*coeficiente_puntos;
+	}
+}
+
+void dibuja_tangente(){
+  strokeWeight(1);
+  stroke(color_funcion[10][0],color_funcion[10][1],color_funcion[10][2]);
+  xi = minx;
+  while(xi<=maxx){
+    yi = x_tangente*tan(xi/zoom)+a_tangente; 
+    double y=-yi*zoom+centropos[1];
+    
+    if(y>=0 && y<=320)point(xi+centropos[0], y);
+    xi= xi+(0.5/zoom)*coeficiente_puntos;
+	}
+}
+
+//AGRUPACIÓN DIBUJOS DE TODAS LAS FUNCIONES
+void dibujar(){
+  	 minx = -centropos[0];
+		 maxx = 320-centropos[0];
+  
+    //dibujar CONSTANTE
+    if(muestrafuncion[0]==true && fase[3]==false) dibuja_constante();
+  
+  	//dibujar AFÍN
+    if(muestrafuncion[1]==true && fase[3]==false)	dibuja_afin();
+  
+    //dibujar CUADRÁTICA
+    if(muestrafuncion[2]==true && fase[3]==false) dibuja_cuadratica();
+  
+ 	  //dibujar RACIONAL
+    if(muestrafuncion[3]==true && fase[3]==false) dibuja_racional();
+ 
+  	//dibujar RADICAL
+    if(muestrafuncion[4]==true && fase[3]==false)	dibuja_radical();
+  
+    //dibujar EXPONENCIAL
+    if(muestrafuncion[5]==true && fase[3]==false)	dibuja_exponencial();
+  
+ 		//dibujar LOGARÍTMICA
+    if(muestrafuncion[6]==true && fase[3]==false)	dibuja_logaritmica(); 
+  
+  	//dibujar racional oblícua
+    if(muestrafuncion[7]==true && fase[3]==false)	dibuja_racional_oblicua(); 
+  
+    //dibujar seno
+  	if(muestrafuncion[8]==true && fase[3]==false)	dibuja_seno(); 
+
+    //dibujar coseno
+  	if(muestrafuncion[9]==true && fase[3]==false)	dibuja_coseno(); 
+
+    //dibujar tangente
+  	if(muestrafuncion[10]==true && fase[3]==false)	dibuja_tangente(); 
+
+}
+
+
+
+
+
+
+//FUNCIONES INTERFAZ
+void interfaz(){
+  //imagenes estandar
+  if(fase[0]==true||fase[1]==true)interfaz_inicial();
+  //BOTONES Y FUNCIONES que llevan a cabo
+  if(fase[0]==true || fase[1]==true || fase[2]==true){
+    //zoom +  botón
+    if(mouseX>275 && mouseX<295 && mouseY>295 && mouseY<315 && mousePressed && zoom<extremoszoom[1]) zoom = zoom+1;
+    //zoom -  botón
+    if(mouseX>298 && mouseX<318 && mouseY>295 && mouseY<315 && mousePressed && zoom>extremoszoom[0]) zoom = zoom-1;
+    //centrar botón
+    if(mouseX>252 && mouseX<272 && mouseY>295 && mouseY<315 && mousePressed)  centrar();
+		//desplegar ajustes
+    if(mouseX>298 && mouseX<316 && mouseY>8 && mouseY<22 && mousePressed){ mousePressed=false; ajustes=!ajustes;}
+     //reiniciar botón
+    if(mouseX>300 && mouseX<314 && mouseY>55 && mouseY<66 && mousePressed)  reiniciar_programa();
+    
+    
+    if(fase[0]==true || fase[1]==true)cambiar_color_funcion(12); //cambiar color de los ejes si estamos en fase 1 o 2
+   
+    //ajustes, incluye FPS, tasa dibujado y color del fondo
+    ajustes_f();
+  }
+  
+  //botón despliega tipos de funciones
+  if(mouseX>0 && mouseX<23 && mouseY>0 && mouseY<28 && mousePressed && mouseButton == LEFTBUTTON && (millis()-cooldown)>200 && ((fase[0]==true && fase[1]==false)||(fase[0]==false && fase[1]==true))){
+    fase[0]=!fase[0]; 
+    fase[1] =! fase[1]; 
+    cooldown = millis(); 
+  } 
+  
+  //botón borrar funciones
+  if(mouseX>301 && mouseX<315 && mouseY>30 && mouseY<45 && mousePressed && mouseButton == LEFTBUTTON && (fase[0]==true || fase[1]==true || fase[2]==true)){
+		borrar();
+  } 
+ 	
+  //DIAGRAMAS DE FUNCIONES
+  if(fase[1] == true && fase[0]==false && fase[2]==false){ 
+    if(((mouseX >207  && mouseY < 112) || (mouseY>112)) &&  mousePressed==true){
+      fase[0]=true;
+      fase[1]=false;
+    }
+    
+    fill(255,255,255);
+  	rect(0,25, 203,80); //rectángulo en el que se encuentran los tipos de funciones
+    textSize(9);
+    nombres_funciones(0,4); //escribimos tipos de funciones en el diagrama
+    nombres_funciones(4,70); 
+    nombres_funciones(8, 150);
+    
+    //BOTONES de tipos de funciones
+    //constante
+    if(mouseX>0 && mouseX<55 && mouseY>30 && mouseY<42 && mousePressed && mouseButton==LEFTBUTTON) click_tipo_funcion(0);
+   	//afín
+    if(mouseX>0 && mouseX<55 && mouseY>48 && mouseY<60 && mousePressed && mouseButton==LEFTBUTTON)click_tipo_funcion(1);
+    //cuadrática
+    if(mouseX>0 && mouseX<55 && mouseY>68 && mouseY<80 && mousePressed && mouseButton==LEFTBUTTON)click_tipo_funcion(2);
+    //racional
+    if(mouseX>0 && mouseX<55 && mouseY>88 && mouseY<100 && mousePressed && mouseButton==LEFTBUTTON)click_tipo_funcion(3);
+    //radical
+    if(mouseX>70 && mouseX<130 && mouseY>30 && mouseY<42 && mousePressed && mouseButton==LEFTBUTTON)click_tipo_funcion(4);
+    //exponencial
+    if(mouseX>70 && mouseX<130 && mouseY>48 && mouseY<60 && mousePressed && mouseButton==LEFTBUTTON)click_tipo_funcion(5);
+    //logarítmica
+    if(mouseX>70 && mouseX<130 && mouseY>68 && mouseY<80 && mousePressed && mouseButton==LEFTBUTTON)click_tipo_funcion(6);
+    //racional (oblicua)
+    if(mouseX>73 && mouseX<195 && mouseY>88 && mouseY<100 && mousePressed && mouseButton==LEFTBUTTON)click_tipo_funcion(7);
+ 		//seno
+    if(mouseX>150 && mouseX<196 && mouseY>30 && mouseY<42 && mousePressed && mouseButton==LEFTBUTTON)click_tipo_funcion(8);
+ 		//coseno
+    if(mouseX>150&& mouseX<196 && mouseY>48 && mouseY<60 && mousePressed && mouseButton==LEFTBUTTON)click_tipo_funcion(9);
+	  //tangente
+    if(mouseX>150 && mouseX<196 && mouseY>68 && mouseY<80 && mousePressed && mouseButton==LEFTBUTTON)click_tipo_funcion(10);
+ 
+  } //fin fase 1
+    
+  
+  
+  //FUNCIONES UNA VEZ SELECCIONADAS, FASE 2
+
+	if(fase[2]==true && fase[0]==false && fase[1]==false){
+    //imagenes cuando función a elegir en el diagrama
+    interfaz_funcion_seleccionar();
+    
+    
+    //función CONSTANTE
+    if(tipo_funcion[0]==true){
+      //botón información
+      if(mouseX>0 && mouseX<23 && mouseY>0 && mouseY<28 && mousePressed && mouseButton == LEFTBUTTON && (millis()-cooldown)>200){ 
+        fase[3]=!fase[3]; cooldown = millis();
+      }
+      if(fase[3]==true) info_constante(); 
+      else formula_constante(); 
+
+    } //fin constante
+
+
+    //función AFÍN
+    if(tipo_funcion[1]==true){
+      //botón información
+      if(mouseX>0 && mouseX<23 && mouseY>0 && mouseY<28 && mousePressed && mouseButton == LEFTBUTTON && (millis()-cooldown)>200){ 
+        fase[3]=!fase[3]; cooldown = millis();
+      }
+      if(fase[3]==true)  info_afin(); 
+      else	formula_afin();
+
+    } //fin afín
+
+
+    //función CUADRÁTICA
+    if(tipo_funcion[2]==true){
+      //botón información
+      if(mouseX>0 && mouseX<23 && mouseY>0 && mouseY<28 && mousePressed && mouseButton == LEFTBUTTON && (millis()-cooldown)>200){ 
+        fase[3]=!fase[3]; cooldown = millis();
+      }
+      if(fase[3]==true)   info_cuadratica(); 
+      else	formula_cuadratica();
+
+    } //fin cuadrática
+
+
+    //función RACIONAL
+    if(tipo_funcion[3]==true){
+      //botón información
+      if(mouseX>0 && mouseX<23 && mouseY>0 && mouseY<28 && mousePressed && mouseButton == LEFTBUTTON && (millis()-cooldown)>200){ 
+        fase[3]=!fase[3]; cooldown = millis();
+      }
+      if(fase[3]==true)  info_racional();
+      else	formula_racional();
+
+    } //fin racional
+
+
+    //función radical
+    if(tipo_funcion[4]==true){
+      //botón información
+      if(mouseX>0 && mouseX<23 && mouseY>0 && mouseY<28 && mousePressed && mouseButton == LEFTBUTTON && (millis()-cooldown)>200){ 
+        fase[3]=!fase[3]; cooldown = millis();
+      }
+      if(fase[3]==true)  info_radical(); 
+      else	formula_radical();
+
+    } //fin radical
+
+
+    //función exponencial
+    if(tipo_funcion[5]==true){
+      //botón información
+      if(mouseX>0 && mouseX<23 && mouseY>0 && mouseY<28 && mousePressed && mouseButton == LEFTBUTTON && (millis()-cooldown)>200){ 
+        fase[3]=!fase[3]; cooldown = millis();
+      }
+      if(fase[3]==true)   info_exponencial(); 
+      else	formula_exponencial();
+    } //fin exponencial
+
+
+    //función logarítmica
+    if(tipo_funcion[6]==true){
+      //botón información
+      if(mouseX>0 && mouseX<23 && mouseY>0 && mouseY<28 && mousePressed && mouseButton == LEFTBUTTON && (millis()-cooldown)>200){ 
+        fase[3]=!fase[3]; cooldown = millis();
+      }
+      if(fase[3]==true)  info_logaritmica();
+      else formula_logaritmica();     // fase[3]=false;
+
+
+    } //fin logarítmica
+
+
+    //función racional oblicua
+    if(tipo_funcion[7]==true){
+      //botón información
+      if(mouseX>0 && mouseX<23 && mouseY>0 && mouseY<28 && mousePressed && mouseButton == LEFTBUTTON && (millis()-cooldown)>200){ 
+        fase[3]=!fase[3]; cooldown = millis();
+      }
+      if(fase[3]==true)  info_racional_oblicua();
+      else formula_racional_oblicua();     // fase[3]=false;
+
+
+    } //fin racional oblicua
+
+
+    //función SENO
+    if(tipo_funcion[8]==true){
+      //botón información
+      if(mouseX>0 && mouseX<23 && mouseY>0 && mouseY<28 && mousePressed && mouseButton == LEFTBUTTON && (millis()-cooldown)>200){ 
+        fase[3]=!fase[3]; cooldown = millis();
+      }
+      if(fase[3]==true)  info_seno(); 
+      else	formula_seno();
+
+    } //fin seno
+
+
+    //función COSENO
+    if(tipo_funcion[9]==true){
+      //botón información
+      if(mouseX>0 && mouseX<23 && mouseY>0 && mouseY<28 && mousePressed && mouseButton == LEFTBUTTON && (millis()-cooldown)>200){ 
+        fase[3]=!fase[3]; cooldown = millis();
+      }
+      if(fase[3]==true)  info_coseno(); 
+      else	formula_coseno();
+
+    } //fin coseno
+
+
+    //función TANGENTE
+    if(tipo_funcion[10]==true){
+      //botón información
+      if(mouseX>0 && mouseX<23 && mouseY>0 && mouseY<28 && mousePressed && mouseButton == LEFTBUTTON && (millis()-cooldown)>200){ 
+        fase[3]=!fase[3]; cooldown = millis();
+      }
+      if(fase[3]==true)  info_tangente(); 
+      else	formula_tangente();
+
+    } //fin tangente
+
+    
+  } //fin fase 2 Y 3
+   
+}
+
+
+
+
+
+
+//TODO EL PROGRAMA
+void programa(){
+   if(intro_hecha==false){
+     background(255,255,255);		
+     image("https://i.ibb.co/x5PT0ZH/124c067b-bf28-49a3-9818-679b6d9a9145.png",0,0,320,320);
+     fill(0,0,0);
+     textSize(7);
+     text("Desarrollado", 263,20);
+     text("por:", 263,28);
+     textSize(9);
+     text("Alberto", 263,47);
+     text("Gálvez", 263,59);
+     if (millis()>=duracion_intro) intro_hecha = true;
+   }
+   else{
+     background(color_funcion[11][0],color_funcion[11][1],color_funcion[11][2]);	//fondo
+     dibujar();	//dibujar funciones
+     if(fase[3]==false){	//NO MOSTRAR EJES, FUNCIONES, ETC, SI SE ESTÁ VIENDO LA INFORMACIÓN DE LA FUNCIÓN
+       interfaz_ejes();	//desplazamiento, ejes, líneas...
+       FPS();	//indicador fps      
+     }	 
+     interfaz();	//interacción con el programa, funciones, ajustes, fórmulas...
+    //println(mouseX+"xxx" + mouseY +"yyyy");
+     //println(punto_inflexion_racional_o);
+   }
+}
+
+
+
+//VOID MAIN ANIMATE
+void main(){
+  texto_descripcion_programa();
+  animate(programa);  
+}
