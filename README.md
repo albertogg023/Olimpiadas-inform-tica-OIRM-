@@ -4,8 +4,10 @@ El lenguaje en el que han sido programados se trata de iJava (subconjunto de Jav
 
 ## Primer puesto OIRM 2019
 Se trata de un `representador de funciones en 2D`.
+
 url: http://descubre.inf.um.es/muestra.php?id=8b3badd5a2b739472af5cd5f19bc7b0d
 
 ## Accésit OIRM 2018
 Se trata de una representación del fenómeno físico conocido como `tiro parabólico`
+
 url: http://descubre.inf.um.es/muestra.php?id=d786975aa612351e914bffa20b2130a4
